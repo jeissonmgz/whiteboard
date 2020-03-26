@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MatSliderModule } from '@angular/material/slider';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import { ControlComponent } from './control/control.component';
 import { ButtonComponent } from './control/button/button.component';
 import { PropertyComponent } from './property/property.component';
@@ -20,7 +22,8 @@ import { PropertyComponent } from './property/property.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MatSliderModule,
+    MatExpansionModule,
+    MatCheckboxModule,
     BrowserAnimationsModule
   ],
   providers: [],
