@@ -8,22 +8,28 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSliderModule } from '@angular/material/slider';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
 import { ControlComponent } from './control/control.component';
 import { ButtonComponent } from './control/button/button.component';
 import { PropertyComponent } from './property/property.component';
+import { PageCanvasComponent } from './page-canvas/page-canvas.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ControlComponent,
     ButtonComponent,
-    PropertyComponent
+    PropertyComponent,
+    PageCanvasComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     MatExpansionModule,
     MatCheckboxModule,
+    MatIconModule,
+    MatButtonModule,
     BrowserAnimationsModule
   ],
   providers: [],

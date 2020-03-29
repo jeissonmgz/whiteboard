@@ -1,3 +1,5 @@
-<span class="circle-link" title="CLI" href="https://cli.angular.io/" target="_blank" rel="noopener">
-    <i [ngStyle]="{'transform': rotateIcon}" class="material-icons">{{icon}}</i>
-</span>
+<button [color]="isFloat ? 'primary' : 'accent'" mat-mini-fab [ngClass]="buttonStyle" title="CLI">
+  <mat-icon [ngStyle]="{'transform': rotateIcon}" class="material-icons">
+    {{icon}}
+  </mat-icon>
+</button>
