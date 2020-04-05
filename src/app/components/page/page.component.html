@@ -13,7 +13,7 @@
         keySplines=".5 0 .5 1"
         fill="freeze" />
 </svg>
-<app-button
+<app-circle-button
     isFloat="true"
     position="top"
     icon="keyboard_arrow_up"
@@ -22,8 +22,8 @@
     (mousedown)="moveScrollPressed(VERTICAL, LEFT_OR_UP)"
     (mouseup)="stopScroll()"
     (mouseleave)="stopScroll()">
-</app-button>
-<app-button
+</app-circle-button>
+<app-circle-button
     isFloat="true"
     position="bottom"
     icon="keyboard_arrow_down"
@@ -32,8 +32,8 @@
     (mousedown)="moveScrollPressed(VERTICAL, RIGHT_OR_DOWN)"
     (mouseup)="stopScroll()"
     (mouseleave)="stopScroll()">
-</app-button>
-<app-button
+</app-circle-button>
+<app-circle-button
     isFloat="true"
     position="left"
     icon="keyboard_arrow_left"
@@ -42,8 +42,8 @@
     (mousedown)="moveScrollPressed(HORIZONTAL, LEFT_OR_UP)"
     (mouseup)="stopScroll()"
     (mouseleave)="stopScroll()">
-</app-button>
-<app-button
+</app-circle-button>
+<app-circle-button
     isFloat="true"
     position="right"
     icon="keyboard_arrow_right"
@@ -52,4 +52,4 @@
     (mousedown)="moveScrollPressed(HORIZONTAL, RIGHT_OR_DOWN)"
     (mouseup)="stopScroll()"
     (mouseleave)="stopScroll()">
-</app-button>
+</app-circle-button>

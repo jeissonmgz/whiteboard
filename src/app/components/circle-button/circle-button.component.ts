@@ -1,11 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-button',
-  templateUrl: './button.component.html',
-  styleUrls: ['./button.component.sass']
+  selector: 'app-circle-button',
+  templateUrl: './circle-button.component.html',
+  styleUrls: ['./circle-button.component.sass']
 })
-export class ButtonComponent implements OnInit {
+export class CircleButtonComponent implements OnInit {
 
   @Input() icon;
   @Input() rotateIcon = "";

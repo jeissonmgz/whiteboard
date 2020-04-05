@@ -1,11 +1,11 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 
 @Component({
-  selector: 'app-page-canvas',
-  templateUrl: './page-canvas.component.html',
-  styleUrls: ['./page-canvas.component.sass']
+  selector: 'app-page',
+  templateUrl: './page.component.html',
+  styleUrls: ['./page.component.sass']
 })
-export class PageCanvasComponent implements OnInit {
+export class PageComponent implements OnInit {
 
   readonly HORIZONTAL = true;
   readonly VERTICAL = false;

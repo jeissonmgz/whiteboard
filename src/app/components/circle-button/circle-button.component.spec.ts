@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PageCanvasComponent } from './page-canvas.component';
+import { CircleButtonComponent } from './circle-button.component';
 
-describe('PageCanvasComponent', () => {
-  let component: PageCanvasComponent;
-  let fixture: ComponentFixture<PageCanvasComponent>;
+describe('ButtonComponent', () => {
+  let component: CircleButtonComponent;
+  let fixture: ComponentFixture<CircleButtonComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PageCanvasComponent ]
+      declarations: [ CircleButtonComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PageCanvasComponent);
+    fixture = TestBed.createComponent(CircleButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -10,18 +10,18 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-import { ControlComponent } from './control/control.component';
-import { ButtonComponent } from './control/button/button.component';
-import { PropertyComponent } from './property/property.component';
-import { PageCanvasComponent } from './page-canvas/page-canvas.component';
+import { ControlComponent } from './components/control/control.component';
+import { CircleButtonComponent } from './components/circle-button/circle-button.component';
+import { PropertyComponent } from './components/property/property.component';
+import { PageComponent } from './components/page/page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ControlComponent,
-    ButtonComponent,
+    CircleButtonComponent,
     PropertyComponent,
-    PageCanvasComponent
+    PageComponent
   ],
   imports: [
     BrowserModule,
