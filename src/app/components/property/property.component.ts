@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
 
 @Component({
-  selector: 'app-property',
-  templateUrl: './property.component.html',
-  styleUrls: ['./property.component.sass']
+  selector: "app-property",
+  templateUrl: "./property.component.html",
+  styleUrls: ["./property.component.sass"],
 })
 export class PropertyComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

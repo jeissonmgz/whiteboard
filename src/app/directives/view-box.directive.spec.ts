@@ -1,7 +1,7 @@
-import { ViewBoxDirective } from './view-box.directive';
+import { ViewBoxDirective } from "./view-box.directive";
 
-describe('ViewBoxDirective', () => {
-  it('should create an instance', () => {
+describe("ViewBoxDirective", () => {
+  it("should create an instance", () => {
     const directive = new ViewBoxDirective();
     expect(directive).toBeTruthy();
   });

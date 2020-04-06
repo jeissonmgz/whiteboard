@@ -1,11 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { Subject, Observable } from "rxjs";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class ViewBoxService {
-
   private subject = new Subject<any>();
 
   readonly ZOOM_IN = true;
@@ -16,14 +15,13 @@ export class ViewBoxService {
   readonly LEFT_OR_UP = true;
   readonly RIGHT_OR_DOWN = false;
 
-  constructor() { }
+  constructor() {}
 
-  change(zoom, scroll:{orientation, direction, value}) {
-    this.subject.next({ zoom: zoom, scroll:scroll });
+  change(zoom, scroll: { orientation; direction; value }) {
+    this.subject.next({ zoom: zoom, scroll: scroll });
   }
 
   getChanges(): Observable<any> {
-      return this.subject.asObservable();
+    return this.subject.asObservable();
   }
-  
 }

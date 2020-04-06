@@ -1,15 +1,19 @@
 <svg
-    class="canvas"
-    #canvas
-    appViewBox
-    [attr.viewBox]="'0 0 '+canvas.width.baseVal.value + ' ' + canvas.height.baseVal.value">
-    <circle cx="12" cy="12" r="100"></circle>
-    <animate
-        #animation
-        attributeName="viewBox"
-        begin="0s"
-        dur="0.5s"
-        calcMode="spline"
-        keySplines=".5 0 .5 1"
-        fill="freeze" />
+  class="canvas"
+  #canvas
+  appViewBox
+  [attr.viewBox]="
+    '0 0 ' + canvas.width.baseVal.value + ' ' + canvas.height.baseVal.value
+  "
+>
+  <circle cx="12" cy="12" r="100"></circle>
+  <animate
+    #animation
+    attributeName="viewBox"
+    begin="0s"
+    dur="0.5s"
+    calcMode="spline"
+    keySplines=".5 0 .5 1"
+    fill="freeze"
+  />
 </svg>

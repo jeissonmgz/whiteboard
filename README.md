@@ -7,6 +7,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 WhiteBoard es una herramienta para crear tableros en línea y así facilitar expesar nuestras ideas gráficamente... aún se encuentra en desarrollo, y una vez se posea un PMV se publicara en githb pages.
 
 ## Funcionalidades previstas
+
 - Scroll infinito
 - Ingresar texto
 - Dibujo libre
@@ -16,15 +17,14 @@ WhiteBoard es una herramienta para crear tableros en línea y así facilitar exp
 - Guardar tableros en linea
 - Edición en simultaneo y en tiempo real
 
-
-
 ## Que tendra el PMV?
+
 - Scroll infinito
 - Ingresar texto
 - Figuras gemetricas: Líneas, rectangulos y ovalos
 
-
 ## Curiosidades
+
 Se empezo el proyecto tras el inicio de la cuarentena por el covid-19 como pasatiempo
 
 ## Information about Angular 9

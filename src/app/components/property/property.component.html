@@ -1,23 +1,21 @@
 <div class="container">
-    <mat-accordion multi="true">
+  <mat-accordion multi="true">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox> Relleno
+        <i class="material-icons">format_paint</i>
+      </mat-expansion-panel-header>
 
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox> Relleno <i class="material-icons">format_paint</i>
-          </mat-expansion-panel-header>
-      
-          This the expansion 1 content
-      
-        </mat-expansion-panel>
-      
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>Contorno<i class="material-icons">crop_square</i>
-          </mat-expansion-panel-header>
-      
-          This the expansion 2 content
-      
-        </mat-expansion-panel>
-      
-      </mat-accordion>
+      This the expansion 1 content
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox
+        >Contorno<i class="material-icons">crop_square</i>
+      </mat-expansion-panel-header>
+
+      This the expansion 2 content
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
