@@ -1,0 +1,41 @@
+
+<app-circle-button
+isFloat="true"
+position="top"
+icon="keyboard_arrow_up"
+(click)="scroll(VERTICAL, LEFT_OR_UP)"
+(dblclick)="scroll(VERTICAL, LEFT_OR_UP, 80)"
+(mousedown)="moveScrollPressed(VERTICAL, LEFT_OR_UP)"
+(mouseup)="stopScroll()"
+(mouseleave)="stopScroll()">
+</app-circle-button>
+<app-circle-button
+isFloat="true"
+position="bottom"
+icon="keyboard_arrow_down"
+(click)="scroll(VERTICAL, RIGHT_OR_DOWN)"
+(dblclick)="scroll(VERTICAL, RIGHT_OR_DOWN, 80)"
+(mousedown)="moveScrollPressed(VERTICAL, RIGHT_OR_DOWN)"
+(mouseup)="stopScroll()"
+(mouseleave)="stopScroll()">
+</app-circle-button>
+<app-circle-button
+isFloat="true"
+position="left"
+icon="keyboard_arrow_left"
+(click)="scroll(HORIZONTAL, LEFT_OR_UP)"
+(dblclick)="scroll(HORIZONTAL, LEFT_OR_UP, 80)"
+(mousedown)="moveScrollPressed(HORIZONTAL, LEFT_OR_UP)"
+(mouseup)="stopScroll()"
+(mouseleave)="stopScroll()">
+</app-circle-button>
+<app-circle-button
+isFloat="true"
+position="right"
+icon="keyboard_arrow_right"
+(click)="scroll(HORIZONTAL, RIGHT_OR_DOWN)"
+(dblclick)="scroll(HORIZONTAL, RIGHT_OR_DOWN, 80)"
+(mousedown)="moveScrollPressed(HORIZONTAL, RIGHT_OR_DOWN)"
+(mouseup)="stopScroll()"
+(mouseleave)="stopScroll()">
+</app-circle-button>

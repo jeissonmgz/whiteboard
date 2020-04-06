@@ -14,6 +14,8 @@ import { ControlComponent } from './components/control/control.component';
 import { CircleButtonComponent } from './components/circle-button/circle-button.component';
 import { PropertyComponent } from './components/property/property.component';
 import { PageComponent } from './components/page/page.component';
+import { ViewBoxDirective } from './directives/view-box.directive';
+import { ScrollComponent } from './components/scroll/scroll.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,9 @@ import { PageComponent } from './components/page/page.component';
     ControlComponent,
     CircleButtonComponent,
     PropertyComponent,
-    PageComponent
+    PageComponent,
+    ViewBoxDirective,
+    ScrollComponent
   ],
   imports: [
     BrowserModule,
