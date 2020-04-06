@@ -10,6 +10,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import { ControlComponent } from './components/control/control.component';
 import { CircleButtonComponent } from './components/circle-button/circle-button.component';
 import { PropertyComponent } from './components/property/property.component';
@@ -34,6 +35,7 @@ import { ScrollComponent } from './components/scroll/scroll.component';
     MatCheckboxModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     BrowserAnimationsModule
   ],
   providers: [],

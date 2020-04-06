@@ -8,6 +8,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class CircleButtonComponent implements OnInit {
 
   @Input() icon;
+  @Input() info;
   @Input() rotateIcon = "";
   @Input() isFloat: boolean = false;
   @Input() position: string = '';
