@@ -50,6 +50,15 @@ export class ViewBoxDirective {
     this.animation = this.svg.nativeElement.querySelector("animate");
   }
 
+  @HostListener("window:load", ["$event"])
+  onLoad(event) {
+    this.svg.nativeElement.viewBox.baseVal.width =
+      event.currentTarget.innerWidth;
+    this.svg.nativeElement.viewBox.baseVal.height =
+      event.currentTarget.innerHeight;
+    this.updateScreen();
+  }
+
   @HostListener("window:resize", ["$event"])
   onResize(event) {
     this.svg.nativeElement.viewBox.baseVal.width = event.target.innerWidth;
