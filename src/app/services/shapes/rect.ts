@@ -1,11 +1,11 @@
-import { Shape, State } from "./shape";
+import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 
 export class Rect extends Shape {
   initPoint: Point;
   constructor(element = null) {
-    super(element, "rect");
+    super(element, TypeShape.RECT);
   }
   set x(x: number) {
     this.element.setAttributeNS(null, "x", x.toString());

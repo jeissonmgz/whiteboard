@@ -1,11 +1,11 @@
-import { Shape, State } from "./shape";
+import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 
 export class Text extends Shape {
   initPoint: Point;
   constructor(element = null) {
-    super(element, "foreignObject");
+    super(element, TypeShape.TEXT);
     if (element == null) {
       this.element.innerHTML = "<div contenteditable='true'></div>";
     }

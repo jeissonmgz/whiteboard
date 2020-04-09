@@ -1,10 +1,10 @@
-import { Shape, State } from "./shape";
+import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 
 export class Line extends Shape {
   constructor(element = null) {
-    super(element, "line");
+    super(element, TypeShape.LINE);
   }
   set x1(x1: number) {
     this.element.setAttributeNS(null, "x1", x1.toString());

@@ -7,6 +7,13 @@ export enum State {
   FINISH,
   EDIT,
 }
+export enum TypeShape {
+  ELLIPSE = "ellipse",
+  LINE = "line",
+  POLYLINE = "polyline",
+  RECT = "rect",
+  TEXT = "foreignObject",
+}
 export abstract class Shape {
   attributes: any;
   properties: any;

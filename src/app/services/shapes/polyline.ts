@@ -1,10 +1,10 @@
-import { Shape, State } from "./shape";
+import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 
 export class Polyline extends Shape {
   constructor(element = null) {
-    super(element, "polyline");
+    super(element, TypeShape.POLYLINE);
   }
   set points(points: string) {
     this.element.setAttributeNS(null, "points", points);

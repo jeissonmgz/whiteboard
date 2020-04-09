@@ -1,10 +1,10 @@
-import { Shape, State } from "./shape";
+import { Shape, State, TypeShape } from "./shape";
 import { ElementRef } from "@angular/core";
 import { Point } from "./point";
 
 export class Ellipse extends Shape {
   constructor(element = null) {
-    super(element, "ellipse");
+    super(element, TypeShape.ELLIPSE);
   }
   set cx(cx: number) {
     this.element.setAttributeNS(null, "cx", cx.toString());
