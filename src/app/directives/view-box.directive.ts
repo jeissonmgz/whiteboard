@@ -19,8 +19,8 @@ export class ViewBoxDirective {
   myViewBox: string;
   zoom: number = 1;
 
-  subscription: Subscription;
-  subscriptionDraw: Subscription;
+  viewSubscription: Subscription;
+  drawSubscription: Subscription;
 
   private animation;
 
@@ -30,16 +30,27 @@ export class ViewBoxDirective {
     private mouseService: MouseService,
     private renderer2: Renderer2
   ) {
-    this.subscription = this.viewBoxService.getChanges().subscribe((change) => {
-      if (change.scroll) {
-        this.scroll(
-          change.scroll.orientation,
-          change.scroll.direction,
-          change.scroll.value
-        );
-      }
-    });
-    this.subscriptionDraw = this.mouseService
+    this.viewSubscription = this.viewBoxService
+      .getChanges()
+      .subscribe((change) => {
+        if (change.scroll) {
+          this.scroll(
+            change.scroll.orientation,
+            change.scroll.direction,
+            change.scroll.value
+          );
+        } else {
+          if (change.zoom == 100) {
+            this.zoom = 1;
+          } else if (change.zoom) {
+            this.zoom += 0.25;
+          } else {
+            if (this.zoom > 0.25) this.zoom -= 0.25;
+          }
+          this.updateScreen();
+        }
+      });
+    this.drawSubscription = this.mouseService
       .getDrawSubject()
       .subscribe((elemenChild) => {
         this.renderer2.appendChild(this.svg.nativeElement, elemenChild);
@@ -129,9 +140,9 @@ export class ViewBoxDirective {
       " " +
       position.y +
       " " +
-      this.svg.nativeElement.viewBox.baseVal.width +
+      this.svg.nativeElement.viewBox.baseVal.width * this.zoom +
       " " +
-      this.svg.nativeElement.viewBox.baseVal.height
+      this.svg.nativeElement.viewBox.baseVal.height * this.zoom
     );
   }
 

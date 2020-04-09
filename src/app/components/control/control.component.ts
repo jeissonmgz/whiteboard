@@ -5,6 +5,7 @@ import { Line } from "src/app/services/shapes/line";
 import { Polyline } from "src/app/services/shapes/polyline";
 import { Rect } from "src/app/services/shapes/rect";
 import { Text } from "src/app/services/shapes/text";
+import { ViewBoxService } from "src/app/services/view-box.service";
 
 @Component({
   selector: "app-control",
@@ -12,7 +13,14 @@ import { Text } from "src/app/services/shapes/text";
   styleUrls: ["./control.component.sass"],
 })
 export class ControlComponent implements OnInit {
-  constructor(private mouseService: MouseService) {}
+  readonly ZOOM_IN = true;
+  readonly ZOOM_OUT = false;
+  readonly ZOOM_100 = 100;
+
+  constructor(
+    private mouseService: MouseService,
+    private viewBoxService: ViewBoxService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -34,5 +42,9 @@ export class ControlComponent implements OnInit {
 
   selectText() {
     this.mouseService.changeShape(new Text());
+  }
+
+  zoom(value: boolean | number) {
+    this.viewBoxService.change(value, null);
   }
 }

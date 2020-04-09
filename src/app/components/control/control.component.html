@@ -31,11 +31,19 @@
   ></app-circle-button>
   <app-circle-button icon="crop_original" info="Imágen"></app-circle-button>
   <span class="space"></span>
-  <app-circle-button icon="zoom_in" info="Ampliar"></app-circle-button>
-  <app-circle-button icon="zoom_out" info="Disminuir"></app-circle-button>
-  <app-circle-button icon="fullscreen" info="Ver todo"></app-circle-button>
+  <app-circle-button
+    icon="zoom_in"
+    info="Ampliar"
+    (click)="zoom(ZOOM_IN)"
+  ></app-circle-button>
+  <app-circle-button
+    icon="zoom_out"
+    info="Disminuir"
+    (click)="zoom(ZOOM_OUT)"
+  ></app-circle-button>
   <app-circle-button
     icon="fullscreen_exit"
     info="Reestablecer"
+    (click)="zoom(ZOOM_100)"
   ></app-circle-button>
 </div>
