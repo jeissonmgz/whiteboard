@@ -3,21 +3,31 @@
   <app-circle-button icon="redo" info="Rehacer"></app-circle-button>
   <span class="space"></span>
   <app-circle-button icon="pan_tool" info="Seleccionar"></app-circle-button>
-  <app-circle-button icon="title" info="Texto"></app-circle-button>
+  <app-circle-button
+    icon="title"
+    info="Texto"
+    (click)="selectText()"
+  ></app-circle-button>
   <app-circle-button
     icon="remove"
     rotateIcon="rotate(45deg)"
     info="Línea"
+    (click)="selectLine()"
   ></app-circle-button>
-  <app-circle-button icon="show_chart" info="Polilínea"></app-circle-button>
-  <app-circle-button icon="call_made" info="Flecha"></app-circle-button>
+  <app-circle-button
+    icon="show_chart"
+    info="Polilínea"
+    (click)="selectPolyline()"
+  ></app-circle-button>
   <app-circle-button
     icon="check_box_outline_blank"
     info="Rectángulo"
+    (click)="selectRect()"
   ></app-circle-button>
   <app-circle-button
     icon="radio_button_unchecked"
-    info="Ovalo"
+    info="Elipse"
+    (click)="selectEllipse()"
   ></app-circle-button>
   <app-circle-button icon="crop_original" info="Imágen"></app-circle-button>
   <span class="space"></span>

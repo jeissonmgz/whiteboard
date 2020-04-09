@@ -1,6 +1,8 @@
 import { Directive, ElementRef, Renderer2, HostListener } from "@angular/core";
 import { Subscription } from "rxjs";
 import { ViewBoxService } from "../services/view-box.service";
+import { MouseService } from "../services/mouse.service";
+import { Point } from "../services/shapes/point";
 
 @Directive({
   selector: "[appViewBox]",
@@ -15,14 +17,17 @@ export class ViewBoxDirective {
     y: 0,
   };
   myViewBox: string;
+  zoom: number = 1;
 
   subscription: Subscription;
+  subscriptionDraw: Subscription;
 
   private animation;
 
   constructor(
     private svg: ElementRef,
     private viewBoxService: ViewBoxService,
+    private mouseService: MouseService,
     private renderer2: Renderer2
   ) {
     this.subscription = this.viewBoxService.getChanges().subscribe((change) => {
@@ -34,6 +39,11 @@ export class ViewBoxDirective {
         );
       }
     });
+    this.subscriptionDraw = this.mouseService
+      .getDrawSubject()
+      .subscribe((elemenChild) => {
+        this.renderer2.appendChild(this.svg.nativeElement, elemenChild);
+      });
   }
 
   ngOnInit() {
@@ -45,6 +55,38 @@ export class ViewBoxDirective {
     this.svg.nativeElement.viewBox.baseVal.width = event.target.innerWidth;
     this.svg.nativeElement.viewBox.baseVal.height = event.target.innerHeight;
     this.updateScreen();
+  }
+
+  @HostListener("click", ["$event"])
+  onClick(event) {
+    let point = this.getPoint(event);
+    this.mouseService.click(event, point);
+  }
+
+  @HostListener("mousemove", ["$event"])
+  onMouseMove(event) {
+    let point = this.getPoint(event);
+    this.mouseService.move(event, point);
+  }
+
+  @HostListener("mouseup", ["$event"])
+  onMouseUp(event) {
+    let point = this.getPoint(event);
+    this.mouseService.up(event, point);
+  }
+
+  @HostListener("mousedown", ["$event"])
+  onMouseDown(event) {
+    let point = this.getPoint(event);
+    this.mouseService.down(event, point);
+  }
+
+  getPoint(event): Point {
+    let positionSvg = this.svg.nativeElement.getBoundingClientRect();
+    return new Point(
+      (event.clientX - positionSvg.left) * this.zoom + this.positionActual.x,
+      (event.clientY - positionSvg.top) * this.zoom + this.positionActual.y
+    );
   }
 
   applyScroll(isHorizontal: boolean, isTopOrLeft: boolean, value: number) {
