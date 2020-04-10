@@ -1,6 +1,10 @@
-import { Shape, State, TypeShape } from "./shape";
+import { Shape, State, TypeShape, EditState } from "./shape";
 import { ElementRef } from "@angular/core";
 import { Point } from "./point";
+import { Rect } from "./rect";
+import { CenterButton } from "./controls/center-button";
+import { ContainerButton } from "./controls/container-button";
+import { ShapeButton } from "./controls/shape-button";
 
 export class Ellipse extends Shape {
   constructor(element = null) {
@@ -41,10 +45,40 @@ export class Ellipse extends Shape {
     this.state = State.EDIT;
     return this.element;
   }
-  addPoint(point: Point): void {
+  editPoint(point: Point): void {
     let difference = point.difference(new Point(this.cx, this.cy));
-    this.rx = difference.x;
-    this.ry = difference.y;
+    switch (this.editState) {
+      case EditState.CENTER:
+        this.cx = point.x;
+        this.cy = point.y;
+        break;
+      case EditState.DEFAULT:
+        this.rx = difference.x;
+        this.ry = difference.y;
+        this.rx = difference.x;
+        break;
+      case EditState.HORIZONTAL_SIDE:
+        this.rx = difference.x;
+        break;
+      case EditState.VERTICAL_SIDE:
+        this.ry = difference.y;
+        break;
+    }
   }
   lastPoint(point: Point, duration: number) {}
+  generateControlsEdit(): ShapeButton[] {
+    this.controlsEdit = [];
+    let container = new ContainerButton(
+      this.cx - this.rx,
+      this.cy - this.ry,
+      this.rx * 2,
+      this.ry * 2,
+      this,
+      EditState.CENTER
+    );
+    this.controlsEdit = this.controlsEdit.concat(
+      container.generateCornersAndSide
+    );
+    return this.controlsEdit;
+  }
 }

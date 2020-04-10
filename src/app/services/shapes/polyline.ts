@@ -1,6 +1,7 @@
 import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
+import { ShapeButton } from "./controls/shape-button";
 
 export class Polyline extends Shape {
   constructor(element = null) {
@@ -12,14 +13,17 @@ export class Polyline extends Shape {
   get points() {
     return this.element.getAttributeNS(null, "points");
   }
-  addPoint(point: Point) {
+  editPoint(point: Point) {
     let points = this.points == null ? "" : this.points;
     this.points = points + " " + point.x + "," + point.y;
   }
   firstPoint(point: Point): ElementRef {
-    this.addPoint(point);
+    this.editPoint(point);
     this.state = State.EDIT;
     return this.element;
   }
   lastPoint(point: Point, duration: number) {}
+  generateControlsEdit(): ShapeButton[] {
+    return [];
+  }
 }

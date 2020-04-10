@@ -1,6 +1,8 @@
-import { Shape, State, TypeShape } from "./shape";
+import { Shape, State, TypeShape, EditState } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
+import { ShapeButton } from "./controls/shape-button";
+import { ContainerButton } from "./controls/container-button";
 
 export class Rect extends Shape {
   initPoint: Point;
@@ -32,7 +34,7 @@ export class Rect extends Shape {
     this.element.setAttributeNS(null, "height", height.toString());
   }
   get height() {
-    return Number(this.element.getAttribPolylineuteNS(null, "height"));
+    return Number(this.element.getAttributeNS(null, "height"));
   }
   firstPoint(point: Point): ElementRef {
     this.x = point.x;
@@ -43,14 +45,45 @@ export class Rect extends Shape {
     this.state = State.EDIT;
     return this.element;
   }
-  addPoint(point: Point): void {
+  editPoint(point: Point): void {
     let difference = point.difference(
       new Point(this.initPoint.x, this.initPoint.y)
     );
-    this.x = Math.min(this.initPoint.x, point.x);
-    this.y = Math.min(this.initPoint.y, point.y);
-    this.width = difference.x;
-    this.height = difference.y;
+    switch (this.editState) {
+      case EditState.CENTER:
+        this.x = point.x - this.width / 2;
+        this.y = point.y - this.height / 2;
+        break;
+      case EditState.DEFAULT:
+        this.x = Math.min(this.initPoint.x, point.x);
+        this.y = Math.min(this.initPoint.y, point.y);
+        this.width = difference.x;
+        this.height = difference.y;
+        break;
+      case EditState.HORIZONTAL_SIDE:
+        this.x = Math.min(this.initPoint.x, point.x);
+        this.width = difference.x;
+        break;
+      case EditState.VERTICAL_SIDE:
+        this.y = Math.min(this.initPoint.y, point.y);
+        this.height = difference.y;
+        break;
+    }
   }
   lastPoint(point: Point, duration: number) {}
+  generateControlsEdit(): ShapeButton[] {
+    this.controlsEdit = [];
+    let container = new ContainerButton(
+      this.x,
+      this.y,
+      this.width,
+      this.height,
+      this,
+      EditState.CENTER
+    );
+    this.controlsEdit = this.controlsEdit.concat(
+      container.generateCornersAndSide
+    );
+    return this.controlsEdit;
+  }
 }

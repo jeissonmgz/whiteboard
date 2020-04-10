@@ -1,6 +1,7 @@
 import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
+import { ShapeButton } from "./controls/shape-button";
 
 export class Text extends Shape {
   initPoint: Point;
@@ -50,7 +51,7 @@ export class Text extends Shape {
     this.state = State.EDIT;
     return this.element;
   }
-  addPoint(point: Point): void {
+  editPoint(point: Point): void {
     let difference = point.difference(
       new Point(this.initPoint.x, this.initPoint.y)
     );
@@ -67,5 +68,8 @@ export class Text extends Shape {
   }
   focus(): void {
     this.element.firstElementChild.focus();
+  }
+  generateControlsEdit(): ShapeButton[] {
+    return [];
   }
 }

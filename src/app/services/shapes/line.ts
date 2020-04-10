@@ -1,6 +1,7 @@
 import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
+import { ShapeButton } from "./controls/shape-button";
 
 export class Line extends Shape {
   constructor(element = null) {
@@ -41,9 +42,12 @@ export class Line extends Shape {
     this.state = State.EDIT;
     return this.element;
   }
-  addPoint(point: Point): void {
+  editPoint(point: Point): void {
     this.x2 = point.x;
     this.y2 = point.y;
   }
   lastPoint(point: Point, duration: number) {}
+  generateControlsEdit(): ShapeButton[] {
+    return [];
+  }
 }
