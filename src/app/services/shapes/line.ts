@@ -1,9 +1,11 @@
-import { Shape, State, TypeShape } from "./shape";
+import { Shape, State, TypeShape, EditState } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 import { ShapeButton } from "./controls/shape-button";
+import { CenterButton } from "./controls/center-button";
 
 export class Line extends Shape {
+  initPoint: Point;
   constructor(element = null) {
     super(element, TypeShape.LINE);
   }
@@ -43,11 +45,45 @@ export class Line extends Shape {
     return this.element;
   }
   editPoint(point: Point): void {
-    this.x2 = point.x;
-    this.y2 = point.y;
+    let difference = point.differenceRelative(this.initPoint);
+    this.initPoint = point.clone();
+    switch (this.editState) {
+      case EditState.CENTER:
+        this.x1 += difference.x;
+        this.y1 += difference.y;
+        this.x2 += difference.x;
+        this.y2 += difference.y;
+        break;
+      case EditState.FIRST_POINT:
+        this.x1 = point.x;
+        this.y1 = point.y;
+        break;
+      default:
+        this.x2 = point.x;
+        this.y2 = point.y;
+        break;
+    }
   }
   lastPoint(point: Point, duration: number) {}
+  beginEdit(stateEdit: EditState) {
+    super.beginEdit(stateEdit);
+    this.initPoint = new Point(
+      (this.x1 + this.x2) / 2,
+      (this.y1 + this.y2) / 2
+    );
+  }
   generateControlsEdit(): ShapeButton[] {
-    return [];
+    this.controlsEdit = [
+      new CenterButton(this.x1, this.y1, EditState.FIRST_POINT, this, "move"),
+      new CenterButton(this.x2, this.y2, EditState.DEFAULT, this, "move"),
+      new CenterButton(
+        (this.x1 + this.x2) / 2,
+        (this.y1 + this.y2) / 2,
+        EditState.CENTER,
+        this,
+        "move"
+      ),
+    ];
+    return this.controlsEdit;
   }
 }

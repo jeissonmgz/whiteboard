@@ -46,56 +46,56 @@ export class ContainerButton extends ShapeButton {
       new CenterButton(
         this.x,
         this.y,
-        EditState.DEFAULT,
+        EditState.NW_POINT,
         this.shape,
         "nw-resize"
       ),
       new CenterButton(
         this.x + this.width,
         this.y,
-        EditState.DEFAULT,
+        EditState.NE_POINT,
         this.shape,
         "ne-resize"
       ),
       new CenterButton(
         this.x,
         this.y + this.height,
-        EditState.DEFAULT,
+        EditState.SW_POINT,
         this.shape,
         "sw-resize"
       ),
       new CenterButton(
         this.x + this.width,
         this.y + this.height,
-        EditState.DEFAULT,
+        EditState.SE_POINT,
         this.shape,
         "se-resize"
       ),
       new CenterButton(
         this.x,
         this.y + this.height / 2,
-        EditState.HORIZONTAL_SIDE,
+        EditState.W_POINT,
         this.shape,
         "w-resize"
       ),
       new CenterButton(
         this.x + this.width / 2,
         this.y,
-        EditState.VERTICAL_SIDE,
+        EditState.N_POINT,
         this.shape,
         "n-resize"
       ),
       new CenterButton(
         this.x + this.width / 2,
         this.y + this.height,
-        EditState.VERTICAL_SIDE,
+        EditState.S_POINT,
         this.shape,
         "s-resize"
       ),
       new CenterButton(
         this.x + this.width,
         this.y + this.height / 2,
-        EditState.HORIZONTAL_SIDE,
+        EditState.E_POINT,
         this.shape,
         "e-resize"
       ),

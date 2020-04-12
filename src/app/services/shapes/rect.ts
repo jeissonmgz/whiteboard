@@ -54,19 +54,43 @@ export class Rect extends Shape {
         this.x = point.x - this.width / 2;
         this.y = point.y - this.height / 2;
         break;
-      case EditState.DEFAULT:
+      case EditState.W_POINT:
+      case EditState.E_POINT:
+        this.x = Math.min(this.initPoint.x, point.x);
+        this.width = difference.x;
+        break;
+      case EditState.N_POINT:
+      case EditState.S_POINT:
+        this.y = Math.min(this.initPoint.y, point.y);
+        this.height = difference.y;
+        break;
+      default:
         this.x = Math.min(this.initPoint.x, point.x);
         this.y = Math.min(this.initPoint.y, point.y);
         this.width = difference.x;
         this.height = difference.y;
         break;
-      case EditState.HORIZONTAL_SIDE:
-        this.x = Math.min(this.initPoint.x, point.x);
-        this.width = difference.x;
+    }
+  }
+  beginEdit(stateEdit: EditState) {
+    super.beginEdit(stateEdit);
+    switch (this.editState) {
+      case EditState.N_POINT:
+      case EditState.NW_POINT:
+      case EditState.W_POINT:
+        this.initPoint = new Point(this.x + this.width, this.y + this.height);
         break;
-      case EditState.VERTICAL_SIDE:
-        this.y = Math.min(this.initPoint.y, point.y);
-        this.height = difference.y;
+      case EditState.CENTER:
+      case EditState.S_POINT:
+      case EditState.SE_POINT:
+      case EditState.E_POINT:
+        this.initPoint = new Point(this.x, this.y);
+        break;
+      case EditState.NE_POINT:
+        this.initPoint = new Point(this.x, this.y + this.height);
+        break;
+      case EditState.SW_POINT:
+        this.initPoint = new Point(this.x + this.width, this.y);
         break;
     }
   }

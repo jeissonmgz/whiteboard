@@ -52,16 +52,18 @@ export class Ellipse extends Shape {
         this.cx = point.x;
         this.cy = point.y;
         break;
-      case EditState.DEFAULT:
+      case EditState.W_POINT:
+      case EditState.E_POINT:
+        this.rx = difference.x;
+        break;
+      case EditState.N_POINT:
+      case EditState.S_POINT:
+        this.ry = difference.y;
+        break;
+      default:
         this.rx = difference.x;
         this.ry = difference.y;
         this.rx = difference.x;
-        break;
-      case EditState.HORIZONTAL_SIDE:
-        this.rx = difference.x;
-        break;
-      case EditState.VERTICAL_SIDE:
-        this.ry = difference.y;
         break;
     }
   }

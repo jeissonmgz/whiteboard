@@ -35,4 +35,8 @@ export class Point {
       Math.abs(point.y - this.y)
     );
   }
+  differenceRelative(x: number | Point, y: number = null): Point {
+    let point = new Point().set(x, y);
+    return new Point().set(this.x - point.x, this.y - point.y);
+  }
 }

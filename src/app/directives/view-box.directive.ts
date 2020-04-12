@@ -1,6 +1,7 @@
 import { Directive, ElementRef, Renderer2, HostListener } from "@angular/core";
 import { Subscription } from "rxjs";
 import { ViewBoxService } from "../services/view-box.service";
+import { ShapeEventService } from "../services/shape-event.service";
 import { MouseService } from "../services/mouse.service";
 import { Point } from "../services/shapes/point";
 
@@ -27,6 +28,7 @@ export class ViewBoxDirective {
   constructor(
     private svg: ElementRef,
     private viewBoxService: ViewBoxService,
+    private shapeEventService: ShapeEventService,
     private mouseService: MouseService,
     private renderer2: Renderer2
   ) {
@@ -43,14 +45,14 @@ export class ViewBoxDirective {
           if (change.zoom == 100) {
             this.zoom = 1;
           } else if (change.zoom) {
-            this.zoom += 0.25;
-          } else {
             if (this.zoom > 0.25) this.zoom -= 0.25;
+          } else {
+            this.zoom += 0.25;
           }
           this.updateScreen();
         }
       });
-    this.drawSubscription = this.mouseService
+    this.drawSubscription = this.shapeEventService
       .getDrawSubject()
       .subscribe((elemenChild) => {
         this.renderer2.appendChild(this.svg.nativeElement, elemenChild);

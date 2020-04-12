@@ -11,8 +11,14 @@ export enum State {
 }
 export enum EditState {
   CENTER,
-  VERTICAL_SIDE,
-  HORIZONTAL_SIDE,
+  N_POINT,
+  S_POINT,
+  E_POINT,
+  W_POINT,
+  NE_POINT,
+  NW_POINT,
+  SE_POINT,
+  SW_POINT,
   FIRST_POINT,
   DEFAULT,
 }
@@ -65,6 +71,12 @@ export abstract class Shape {
     this.removeControlsEdit();
     this.element = document.createElementNS(SVG_NS, this.name);
     this.state = State.INIT;
+    this.editState = EditState.DEFAULT;
+  }
+  beginEdit(stateEdit: EditState) {
+    this.state = State.EDIT;
+    this.editState = stateEdit;
+    this.removeControlsEdit();
   }
   remove(element = null) {
     if (!element) {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { MouseService } from "src/app/services/mouse.service";
+import { ShapeEventService } from "src/app/services/shape-event.service";
 import { Ellipse } from "src/app/services/shapes/ellipse";
 import { Line } from "src/app/services/shapes/line";
 import { Polyline } from "src/app/services/shapes/polyline";
@@ -18,30 +18,34 @@ export class ControlComponent implements OnInit {
   readonly ZOOM_100 = 100;
 
   constructor(
-    private mouseService: MouseService,
+    private shapeEventService: ShapeEventService,
     private viewBoxService: ViewBoxService
   ) {}
 
   ngOnInit(): void {}
 
   selectEllipse() {
-    this.mouseService.changeShape(new Ellipse());
+    this.shapeEventService.changeShape(new Ellipse());
   }
 
   selectLine() {
-    this.mouseService.changeShape(new Line());
+    this.shapeEventService.changeShape(new Line());
   }
 
   selectPolyline() {
-    this.mouseService.changeShape(new Polyline());
+    this.shapeEventService.changeShape(new Polyline());
   }
 
   selectRect() {
-    this.mouseService.changeShape(new Rect());
+    this.shapeEventService.changeShape(new Rect());
   }
 
   selectText() {
-    this.mouseService.changeShape(new Text());
+    this.shapeEventService.changeShape(new Text());
+  }
+
+  selectShape() {
+    this.shapeEventService.changeShape(null);
   }
 
   zoom(value: boolean | number) {
