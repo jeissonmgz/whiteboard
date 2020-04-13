@@ -2,20 +2,66 @@
   <mat-accordion multi="true">
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox> Relleno
+        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
         <i class="material-icons">format_paint</i>
+        Relleno
       </mat-expansion-panel-header>
 
-      This the expansion 1 content
+      <mat-form-field appearance="outline">
+        <mat-label>Color</mat-label>
+        <input matInput type="color" [(ngModel)]="property.backgroundColor" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Transparencia</mat-label>
+        <mat-slider
+          thumbLabel="true"
+          [displayWith]="formatPercentageLabel"
+          max="1"
+          min="0"
+          step="0.01"
+          [(ngModel)]="property.backgroundOpacity"
+        >
+        </mat-slider>
+        <input matInput hidden />
+      </mat-form-field>
     </mat-expansion-panel>
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>
-        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox
-        >Contorno<i class="material-icons">crop_square</i>
+        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+        <i class="material-icons">crop_square</i>
+        Contorno
       </mat-expansion-panel-header>
 
-      This the expansion 2 content
+      <mat-form-field appearance="outline">
+        <mat-label>Color</mat-label>
+        <input matInput type="color" [(ngModel)]="property.lineColor" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Transparencia</mat-label>
+        <mat-slider
+          thumbLabel="true"
+          [displayWith]="formatPercentageLabel"
+          max="1"
+          min="0"
+          step="0.01"
+          [(ngModel)]="property.lineOpacity"
+        >
+        </mat-slider>
+        <input matInput hidden />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Grosor</mat-label>
+        <input
+          matInput
+          type="number"
+          [(ngModel)]="property.lineWidth"
+          min="1"
+        />
+      </mat-form-field>
     </mat-expansion-panel>
   </mat-accordion>
 </div>

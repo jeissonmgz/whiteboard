@@ -9,6 +9,8 @@ import { MatSliderModule } from "@angular/material/slider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatButtonModule } from "@angular/material/button";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ControlComponent } from "./components/control/control.component";
@@ -17,6 +19,7 @@ import { PropertyComponent } from "./components/property/property.component";
 import { PageComponent } from "./components/page/page.component";
 import { ViewBoxDirective } from "./directives/view-box.directive";
 import { ScrollComponent } from "./components/scroll/scroll.component";
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -31,10 +34,14 @@ import { ScrollComponent } from "./components/scroll/scroll.component";
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MatExpansionModule,
-    MatCheckboxModule,
-    MatIconModule,
+    FormsModule,
     MatButtonModule,
+    MatCheckboxModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSliderModule,
     MatTooltipModule,
     BrowserAnimationsModule,
   ],
