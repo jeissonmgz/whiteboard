@@ -1,6 +1,6 @@
 import { Injectable, ElementRef } from "@angular/core";
 import { Subject, Observable } from "rxjs";
-import { Shape, State, EditState } from "./shapes/shape";
+import { Shape, State, EditState, TypeShape } from "./shapes/shape";
 import { Point } from "./shapes/point";
 import { ShapeFactory } from "./shapes/shape-factory";
 
@@ -13,6 +13,8 @@ export class ShapeEventService {
   startClick: number = 0;
   finishClick: number;
   isSelectShape: boolean;
+  typeShape: TypeShape;
+  shapeSelected: TypeShape;
 
   constructor() {
     this.changeShape(null);
@@ -28,6 +30,9 @@ export class ShapeEventService {
   changeShape(shape: Shape) {
     this.resetChanges();
     this.isSelectShape = shape == null;
+    this.typeShape = this.isSelectShape
+      ? null
+      : (this.typeShape = ShapeFactory.getTypeShape(shape.element.tagName));
     this.shape = shape;
   }
 

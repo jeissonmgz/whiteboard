@@ -19,8 +19,20 @@ export class ShapeFactory {
       case TypeShape.RECT:
         return new Rect(element);
         break;
-      case TypeShape.TEXT:
-        return new Text(element);
+      case TypeShape.DIV:
+        return new Text(element.parentNode);
+        break;
+    }
+    return null;
+  }
+  static getTypeShape(typeShape: string): TypeShape {
+    switch (typeShape) {
+      case TypeShape.ELLIPSE:
+      case TypeShape.LINE:
+      case TypeShape.POLYLINE:
+      case TypeShape.RECT:
+      case TypeShape.DIV:
+        return typeShape;
         break;
     }
     return null;

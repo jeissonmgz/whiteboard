@@ -28,6 +28,7 @@ export enum TypeShape {
   POLYLINE = "polyline",
   RECT = "rect",
   TEXT = "foreignObject",
+  DIV = "DIV",
 }
 export enum Behavior {
   PRIMARY,
