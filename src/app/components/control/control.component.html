@@ -5,32 +5,38 @@
   <app-circle-button
     icon="pan_tool"
     info="Seleccionar"
+    [isSelected]="shapeEventService.typeShape == null"
     (click)="selectShape()"
   ></app-circle-button>
   <app-circle-button
     icon="title"
     info="Texto"
+    [isSelected]="shapeEventService.typeShape == 'foreignObject'"
     (click)="selectText()"
   ></app-circle-button>
   <app-circle-button
     icon="remove"
     rotateIcon="rotate(45deg)"
     info="Línea"
+    [isSelected]="shapeEventService.typeShape == 'line'"
     (click)="selectLine()"
   ></app-circle-button>
   <app-circle-button
     icon="show_chart"
     info="Polilínea"
+    [isSelected]="shapeEventService.typeShape == 'polyline'"
     (click)="selectPolyline()"
   ></app-circle-button>
   <app-circle-button
     icon="check_box_outline_blank"
     info="Rectángulo"
+    [isSelected]="shapeEventService.typeShape == 'rect'"
     (click)="selectRect()"
   ></app-circle-button>
   <app-circle-button
     icon="radio_button_unchecked"
     info="Elipse"
+    [isSelected]="shapeEventService.typeShape == 'ellipse'"
     (click)="selectEllipse()"
   ></app-circle-button>
   <span class="space"></span>

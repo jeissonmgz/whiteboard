@@ -83,6 +83,7 @@ export class Text extends Shape {
   beginEdit(stateEdit: EditState) {
     super.beginEdit(stateEdit);
     switch (this.editState) {
+      case EditState.CENTER:
       case EditState.N_POINT:
       case EditState.NW_POINT:
       case EditState.W_POINT:

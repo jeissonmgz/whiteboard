@@ -32,6 +32,7 @@ export class ShapeFactory {
       case TypeShape.POLYLINE:
       case TypeShape.RECT:
       case TypeShape.DIV:
+      case TypeShape.TEXT:
         return typeShape;
         break;
     }

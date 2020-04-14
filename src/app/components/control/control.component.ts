@@ -18,7 +18,7 @@ export class ControlComponent implements OnInit {
   readonly ZOOM_100 = 100;
 
   constructor(
-    private shapeEventService: ShapeEventService,
+    public shapeEventService: ShapeEventService,
     private viewBoxService: ViewBoxService
   ) {}
 

@@ -1,11 +1,4 @@
-<svg
-  class="canvas"
-  #canvas
-  appViewBox
-  [attr.viewBox]="
-    '0 0 ' + canvas.width.baseVal.value + ' ' + canvas.height.baseVal.value
-  "
->
+<svg class="canvas" #canvas appViewBox>
   <animate
     #animation
     attributeName="viewBox"
