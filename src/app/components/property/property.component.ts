@@ -1,6 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 
 export class Property {
+  textColor: string;
+  textOpacity: number;
+  textSize: number = 20;
   backgroundColor: string;
   backgroundOpacity: number = 1;
   lineColor: string;
@@ -8,11 +11,9 @@ export class Property {
   lineWidth: number = 1;
 }
 export enum PropertyAllowed {
-  backgroundColor,
-  backgroundOpacity,
-  lineColor,
-  lineOpacity,
-  lineWidth,
+  text,
+  background,
+  line,
 }
 
 @Component({
@@ -29,5 +30,17 @@ export class PropertyComponent implements OnInit {
   ngOnInit(): void {}
   formatPercentageLabel(value: number) {
     return Math.round(value * 100) + "%";
+  }
+  updateText(event) {
+    this.property.textColor = event.color;
+    this.property.textOpacity = event.opacity;
+  }
+  updateFill(event) {
+    this.property.backgroundColor = event.color;
+    this.property.backgroundOpacity = event.opacity;
+  }
+  updateStroke(event) {
+    this.property.lineColor = event.color;
+    this.property.lineOpacity = event.opacity;
   }
 }

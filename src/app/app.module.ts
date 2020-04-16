@@ -12,6 +12,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatButtonModule } from "@angular/material/button";
+import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ControlComponent } from "./components/control/control.component";
 import { CircleButtonComponent } from "./components/circle-button/circle-button.component";
@@ -19,7 +20,8 @@ import { PropertyComponent } from "./components/property/property.component";
 import { PageComponent } from "./components/page/page.component";
 import { ViewBoxDirective } from "./directives/view-box.directive";
 import { ScrollComponent } from "./components/scroll/scroll.component";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { ColorPickerComponent } from "./components/color-picker/color-picker.component";
 
 @NgModule({
   declarations: [
@@ -30,6 +32,7 @@ import { FormsModule } from "@angular/forms";
     PageComponent,
     ViewBoxDirective,
     ScrollComponent,
+    ColorPickerComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,7 +45,9 @@ import { FormsModule } from "@angular/forms";
     MatIconModule,
     MatInputModule,
     MatSliderModule,
+    MatTabsModule,
     MatTooltipModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
   ],
   providers: [],

@@ -3,28 +3,31 @@
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+        <i class="material-icons">title</i>
+        Texto
+      </mat-expansion-panel-header>
+      <app-color-picker
+        [color]="property.textColor"
+        [opacity]="property.textOpacity"
+        (onChange)="updateText($event)"
+      ></app-color-picker>
+      <mat-form-field appearance="outline">
+        <mat-label>Tamaño</mat-label>
+        <input matInput type="number" [(ngModel)]="property.textSize" min="1" />
+      </mat-form-field>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
         <i class="material-icons">format_paint</i>
         Relleno
       </mat-expansion-panel-header>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Color</mat-label>
-        <input matInput type="color" [(ngModel)]="property.backgroundColor" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Transparencia</mat-label>
-        <mat-slider
-          thumbLabel="true"
-          [displayWith]="formatPercentageLabel"
-          max="1"
-          min="0"
-          step="0.01"
-          [(ngModel)]="property.backgroundOpacity"
-        >
-        </mat-slider>
-        <input matInput hidden />
-      </mat-form-field>
+      <app-color-picker
+        [color]="property.backgroundColor"
+        [opacity]="property.backgroundOpacity"
+        (onChange)="updateFill($event)"
+      ></app-color-picker>
     </mat-expansion-panel>
 
     <mat-expansion-panel>
@@ -33,25 +36,11 @@
         <i class="material-icons">crop_square</i>
         Contorno
       </mat-expansion-panel-header>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Color</mat-label>
-        <input matInput type="color" [(ngModel)]="property.lineColor" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Transparencia</mat-label>
-        <mat-slider
-          thumbLabel="true"
-          [displayWith]="formatPercentageLabel"
-          max="1"
-          min="0"
-          step="0.01"
-          [(ngModel)]="property.lineOpacity"
-        >
-        </mat-slider>
-        <input matInput hidden />
-      </mat-form-field>
+      <app-color-picker
+        [color]="property.lineColor"
+        [opacity]="property.lineOpacity"
+        (onChange)="updateStroke($event)"
+      ></app-color-picker>
 
       <mat-form-field appearance="outline">
         <mat-label>Grosor</mat-label>
