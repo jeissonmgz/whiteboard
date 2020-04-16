@@ -1,3 +1,5 @@
+@import "~@angular/material/theming"
+@import "~src/custom-theme"
 .container
     cursor: pointer
     // box-shadow: 0 2px 7px rgba(black, 0.35)
@@ -18,6 +20,8 @@ i
     padding-top: 2px
     width: 16px
     height: 16px
-    background: black
+    background: mat-color($board-primary)
     color: white
     border-radius: 50%
+    margin-left: 0.5em
+    margin-right: 0.5em
