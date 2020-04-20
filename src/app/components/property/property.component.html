@@ -1,43 +1,20 @@
-<div class="container">
-  <mat-accordion multi="true">
-    <mat-expansion-panel>
-      <mat-expansion-panel-header color="primary">
-        <i class="material-icons">title</i>
-        Texto
-      </mat-expansion-panel-header>
-      <app-color-picker
-        [color]="property.textColor"
-        [opacity]="property.textOpacity"
-        (onChange)="updateText($event)"
-      ></app-color-picker>
-      <mat-form-field appearance="outline">
-        <mat-label>Tamaño</mat-label>
-        <input matInput type="number" [(ngModel)]="property.textSize" min="1" />
-      </mat-form-field>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
-        <i class="material-icons">format_paint</i>
-        Relleno
-      </mat-expansion-panel-header>
-      <app-color-picker
-        [color]="property.backgroundColor"
-        [opacity]="property.backgroundOpacity"
-        (onChange)="updateFill($event)"
-      ></app-color-picker>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel>
+<div class="container" *ngIf="shapeEventService.shape">
+  <mat-accordion>
+    <mat-expansion-panel
+      *ngIf="
+        shapeEventService.shape.propertiesAllowed.includes(
+          propertiesAllowed.line
+        )
+      "
+    >
       <mat-expansion-panel-header>
         <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
         <i class="material-icons">crop_square</i>
         Contorno
       </mat-expansion-panel-header>
       <app-color-picker
-        [color]="property.lineColor"
-        [opacity]="property.lineOpacity"
+        [color]="shapeEventService.shape.stroke"
+        [opacity]="shapeEventService.shape.strokeOpacity"
         (onChange)="updateStroke($event)"
       ></app-color-picker>
 
@@ -46,7 +23,51 @@
         <input
           matInput
           type="number"
-          [(ngModel)]="property.lineWidth"
+          [(ngModel)]="shapeEventService.shape.strokeWidth"
+          min="1"
+        />
+      </mat-form-field>
+    </mat-expansion-panel>
+    <mat-expansion-panel
+      *ngIf="
+        shapeEventService.shape.propertiesAllowed.includes(
+          propertiesAllowed.background
+        )
+      "
+    >
+      <mat-expansion-panel-header>
+        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+        <i class="material-icons">format_paint</i>
+        Relleno
+      </mat-expansion-panel-header>
+      <app-color-picker
+        [color]="shapeEventService.shape.fill"
+        [opacity]="shapeEventService.shape.fillOpacity"
+        (onChange)="updateFill($event)"
+      ></app-color-picker>
+    </mat-expansion-panel>
+    <mat-expansion-panel
+      *ngIf="
+        shapeEventService.shape.propertiesAllowed.includes(
+          propertiesAllowed.text
+        )
+      "
+    >
+      <mat-expansion-panel-header color="primary">
+        <i class="material-icons">title</i>
+        Texto
+      </mat-expansion-panel-header>
+      <app-color-picker
+        [color]="shapeEventService.shape.color"
+        [opacity]="shapeEventService.property.textOpacity"
+        (onChange)="updateText($event)"
+      ></app-color-picker>
+      <mat-form-field appearance="outline">
+        <mat-label>Tamaño</mat-label>
+        <input
+          matInput
+          type="number"
+          [(ngModel)]="shapeEventService.shape.fontSize"
           min="1"
         />
       </mat-form-field>

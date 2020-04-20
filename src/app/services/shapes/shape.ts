@@ -1,6 +1,8 @@
 import { ElementRef } from "@angular/core";
 import { Point } from "./point";
 import { ShapeButton } from "./controls/shape-button";
+import { PropertyAllowed } from "./properties/properties-allowed";
+import { RgbToHex } from "./properties/rgb-to-hex";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 export enum State {
@@ -38,6 +40,7 @@ export abstract class Shape {
   attributes: any;
   properties: any;
   state: State;
+  propertiesAllowed: PropertyAllowed[];
   constructor(
     public element: any,
     public name: string,
@@ -66,7 +69,41 @@ export abstract class Shape {
     this.element.setAttributeNS(null, "stroke-width", strokeWidth);
   }
   get strokeWidth() {
-    return this.element.getAttributeNS(null, "stroke-width");
+    if (this.element.hasAttributeNS(null, "stroke-width"))
+      return this.element.getAttributeNS(null, "stroke-width");
+    else return "1";
+  }
+  set strokeOpacity(strokeOpacity: string) {
+    this.element.setAttributeNS(null, "stroke-opacity", strokeOpacity);
+  }
+  get strokeOpacity() {
+    if (this.element.hasAttributeNS(null, "stroke-opacity"))
+      return this.element.getAttributeNS(null, "stroke-opacity");
+    else return "100";
+  }
+  set fillOpacity(fillOpacity: string) {
+    this.element.setAttributeNS(null, "fill-opacity", fillOpacity);
+  }
+  get fillOpacity() {
+    if (this.element.hasAttributeNS(null, "fill-opacity"))
+      return this.element.getAttributeNS(null, "fill-opacity");
+    else return "100";
+  }
+  set fontSize(fontSize: string) {
+    this.element.firstChild.style.fontSize = fontSize + "px";
+  }
+  get fontSize() {
+    if (this.element.firstChild.style.fontSize)
+      return this.element.firstChild.style.fontSize.replace("px", "");
+    else return "12";
+  }
+  set color(color: string) {
+    this.element.firstChild.style.color = color;
+  }
+  get color() {
+    if (this.element.firstChild.style.color)
+      return RgbToHex.execute(this.element.firstChild.style.color);
+    else return "#000000";
   }
   init() {
     this.removeControlsEdit();

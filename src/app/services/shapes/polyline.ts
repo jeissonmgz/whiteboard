@@ -2,10 +2,12 @@ import { Shape, State, TypeShape } from "./shape";
 import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 import { ShapeButton } from "./controls/shape-button";
+import { PropertyAllowed } from "./properties/properties-allowed";
 
 export class Polyline extends Shape {
   constructor(element = null) {
     super(element, TypeShape.POLYLINE);
+    this.propertiesAllowed = [PropertyAllowed.line];
   }
   set points(points: string) {
     this.element.setAttributeNS(null, "points", points);

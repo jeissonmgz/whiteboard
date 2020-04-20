@@ -5,10 +5,12 @@ import { Rect } from "./rect";
 import { CenterButton } from "./controls/center-button";
 import { ContainerButton } from "./controls/container-button";
 import { ShapeButton } from "./controls/shape-button";
+import { PropertyAllowed } from "./properties/properties-allowed";
 
 export class Ellipse extends Shape {
   constructor(element = null) {
     super(element, TypeShape.ELLIPSE);
+    this.propertiesAllowed = [PropertyAllowed.background, PropertyAllowed.line];
   }
   set cx(cx: number) {
     this.element.setAttributeNS(null, "cx", cx.toString());

@@ -3,11 +3,13 @@ import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 import { ShapeButton } from "./controls/shape-button";
 import { ContainerButton } from "./controls/container-button";
+import { PropertyAllowed } from "./properties/properties-allowed";
 
 export class Text extends Shape {
   initPoint: Point;
   constructor(element = null) {
     super(element, TypeShape.TEXT);
+    this.propertiesAllowed = [PropertyAllowed.text];
     if (element == null) {
       this.element.innerHTML = "<div contenteditable='true'></div>";
     }

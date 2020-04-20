@@ -3,11 +3,13 @@ import { Point } from "./point";
 import { ElementRef } from "@angular/core";
 import { ShapeButton } from "./controls/shape-button";
 import { CenterButton } from "./controls/center-button";
+import { PropertyAllowed } from "./properties/properties-allowed";
 
 export class Line extends Shape {
   initPoint: Point;
   constructor(element = null) {
     super(element, TypeShape.LINE);
+    this.propertiesAllowed = [PropertyAllowed.line];
   }
   set x1(x1: number) {
     this.element.setAttributeNS(null, "x1", x1.toString());

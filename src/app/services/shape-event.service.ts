@@ -3,6 +3,7 @@ import { Subject, Observable } from "rxjs";
 import { Shape, State, EditState, TypeShape } from "./shapes/shape";
 import { Point } from "./shapes/point";
 import { ShapeFactory } from "./shapes/shape-factory";
+import { Property } from "./shapes/properties/property";
 
 @Injectable({
   providedIn: "root",
@@ -10,6 +11,7 @@ import { ShapeFactory } from "./shapes/shape-factory";
 export class ShapeEventService {
   drawSubject = new Subject<any>();
   shape: Shape;
+  property: Property;
   startClick: number = 0;
   finishClick: number;
   isSelectShape: boolean;
@@ -18,6 +20,7 @@ export class ShapeEventService {
 
   constructor() {
     this.changeShape(null);
+    this.property = new Property();
   }
 
   resetChanges() {

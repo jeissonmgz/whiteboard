@@ -1,20 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-
-export class Property {
-  textColor: string;
-  textOpacity: number;
-  textSize: number = 20;
-  backgroundColor: string;
-  backgroundOpacity: number = 1;
-  lineColor: string;
-  lineOpacity: number;
-  lineWidth: number = 1;
-}
-export enum PropertyAllowed {
-  text,
-  background,
-  line,
-}
+import { Property } from "../../services/shapes/properties/property";
+import { PropertyAllowed } from "../../services/shapes/properties/properties-allowed";
+import { ShapeEventService } from "src/app/services/shape-event.service";
 
 @Component({
   selector: "app-property",
@@ -22,25 +9,28 @@ export enum PropertyAllowed {
   styleUrls: ["./property.component.sass"],
 })
 export class PropertyComponent implements OnInit {
-  property: Property;
-  constructor() {
-    this.property = new Property();
-  }
+  readonly propertiesAllowed = PropertyAllowed;
+  constructor(public shapeEventService: ShapeEventService) {}
 
   ngOnInit(): void {}
   formatPercentageLabel(value: number) {
     return Math.round(value * 100) + "%";
   }
   updateText(event) {
-    this.property.textColor = event.color;
-    this.property.textOpacity = event.opacity;
+    this.shapeEventService.shape.color = event.color;
+    this.shapeEventService.property.textColor = event.color;
+    this.shapeEventService.property.textOpacity = event.opacity;
   }
   updateFill(event) {
-    this.property.backgroundColor = event.color;
-    this.property.backgroundOpacity = event.opacity;
+    this.shapeEventService.shape.fill = event.color;
+    this.shapeEventService.shape.fillOpacity = event.opacity;
+    this.shapeEventService.property.backgroundColor = event.color;
+    this.shapeEventService.property.backgroundOpacity = event.opacity;
   }
   updateStroke(event) {
-    this.property.lineColor = event.color;
-    this.property.lineOpacity = event.opacity;
+    this.shapeEventService.shape.stroke = event.color;
+    this.shapeEventService.shape.strokeOpacity = event.opacity;
+    this.shapeEventService.property.lineColor = event.color;
+    this.shapeEventService.property.lineOpacity = event.opacity;
   }
 }
