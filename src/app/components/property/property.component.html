@@ -8,25 +8,31 @@
       "
     >
       <mat-expansion-panel-header>
-        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+        <mat-checkbox
+          [checked]="shapeEventService.shape.stroke != 'none'"
+          (change)="setVisibleStroke($event)"
+          (click)="$event.stopPropagation()"
+        ></mat-checkbox>
         <i class="material-icons">crop_square</i>
         Contorno
       </mat-expansion-panel-header>
-      <app-color-picker
-        [color]="shapeEventService.shape.stroke"
-        [opacity]="shapeEventService.shape.strokeOpacity"
-        (onChange)="updateStroke($event)"
-      ></app-color-picker>
+      <ng-container *ngIf="shapeEventService.shape.stroke != 'none'">
+        <app-color-picker
+          [color]="shapeEventService.shape.stroke"
+          [opacity]="shapeEventService.shape.strokeOpacity"
+          (onChange)="updateStroke($event)"
+        ></app-color-picker>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Grosor</mat-label>
-        <input
-          matInput
-          type="number"
-          [(ngModel)]="shapeEventService.shape.strokeWidth"
-          min="1"
-        />
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Grosor</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="shapeEventService.shape.strokeWidth"
+            min="1"
+          />
+        </mat-form-field>
+      </ng-container>
     </mat-expansion-panel>
     <mat-expansion-panel
       *ngIf="
@@ -36,15 +42,21 @@
       "
     >
       <mat-expansion-panel-header>
-        <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+        <mat-checkbox
+          [checked]="shapeEventService.shape.fill != 'none'"
+          (change)="setVisibleFill($event)"
+          (click)="$event.stopPropagation()"
+        ></mat-checkbox>
         <i class="material-icons">format_paint</i>
         Relleno
       </mat-expansion-panel-header>
-      <app-color-picker
-        [color]="shapeEventService.shape.fill"
-        [opacity]="shapeEventService.shape.fillOpacity"
-        (onChange)="updateFill($event)"
-      ></app-color-picker>
+      <ng-container *ngIf="shapeEventService.shape.fill != 'none'">
+        <app-color-picker
+          [color]="shapeEventService.shape.fill"
+          [opacity]="shapeEventService.shape.fillOpacity"
+          (onChange)="updateFill($event)"
+        ></app-color-picker>
+      </ng-container>
     </mat-expansion-panel>
     <mat-expansion-panel
       *ngIf="
@@ -59,9 +71,58 @@
       </mat-expansion-panel-header>
       <app-color-picker
         [color]="shapeEventService.shape.color"
-        [opacity]="shapeEventService.property.textOpacity"
+        [opacity]="shapeEventService.shape.opacity"
         (onChange)="updateText($event)"
       ></app-color-picker>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.textAlign = 'left'"
+      >
+        <mat-icon>format_align_left</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.textAlign = 'center'"
+      >
+        <mat-icon>format_align_center</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.textAlign = 'right'"
+      >
+        <mat-icon>format_align_right</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.textAlign = 'justify'"
+      >
+        <mat-icon>format_align_justify</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.verticalAlign = 'top'"
+      >
+        <mat-icon>vertical_align_top</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.verticalAlign = 'middle'"
+      >
+        <mat-icon>vertical_align_center</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        aria-label="Example icon-button with a heart icon"
+        (click)="shapeEventService.shape.verticalAlign = 'bottom'"
+      >
+        <mat-icon>vertical_align_bottom</mat-icon>
+      </button>
       <mat-form-field appearance="outline">
         <mat-label>Tamaño</mat-label>
         <input
@@ -70,6 +131,36 @@
           [(ngModel)]="shapeEventService.shape.fontSize"
           min="1"
         />
+        <button
+          mat-icon-button
+          aria-label="Example icon-button with a heart icon"
+          (click)="shapeEventService.shape.fontSize = '12'"
+        >
+          <mat-icon [ngStyle]="{ transform: 'scale(0.7)' }">title</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="Example icon-button with a heart icon"
+          (click)="shapeEventService.shape.fontSize = '25'"
+        >
+          <mat-icon>title</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="Example icon-button with a heart icon"
+          [ngStyle]="{ transform: 'scale(1.2)' }"
+          (click)="shapeEventService.shape.fontSize = '50'"
+        >
+          <mat-icon>title</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="Example icon-button with a heart icon"
+          [ngStyle]="{ transform: 'scale(1.5)' }"
+          (click)="shapeEventService.shape.fontSize = '75'"
+        >
+          <mat-icon>title</mat-icon>
+        </button>
       </mat-form-field>
     </mat-expansion-panel>
   </mat-accordion>

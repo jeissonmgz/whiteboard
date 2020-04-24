@@ -105,6 +105,30 @@ export abstract class Shape {
       return RgbToHex.execute(this.element.firstChild.style.color);
     else return "#000000";
   }
+  set opacity(opacity: string) {
+    this.element.firstChild.style.opacity = opacity;
+  }
+  get opacity() {
+    if (this.element.firstChild.style.opacity)
+      return this.element.firstChild.style.opacity;
+    else return "1";
+  }
+  set textAlign(textAlign: string) {
+    this.element.firstChild.style.textAlign = textAlign;
+  }
+  get textAlign() {
+    if (this.element.firstChild.style.textAlign)
+      return this.element.firstChild.style.textAlign;
+    else return "left";
+  }
+  set verticalAlign(verticalAlign: string) {
+    this.element.firstChild.style.verticalAlign = verticalAlign;
+  }
+  get verticalAlign() {
+    if (this.element.firstChild.style.verticalAlign)
+      return this.element.firstChild.style.verticalAlign;
+    else return "top";
+  }
   init() {
     this.removeControlsEdit();
     this.element = document.createElementNS(SVG_NS, this.name);

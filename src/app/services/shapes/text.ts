@@ -4,19 +4,23 @@ import { ElementRef } from "@angular/core";
 import { ShapeButton } from "./controls/shape-button";
 import { ContainerButton } from "./controls/container-button";
 import { PropertyAllowed } from "./properties/properties-allowed";
+import { RgbToHex } from "./properties/rgb-to-hex";
 
 export class Text extends Shape {
   initPoint: Point;
   constructor(element = null) {
     super(element, TypeShape.TEXT);
-    this.propertiesAllowed = [PropertyAllowed.text];
-    if (element == null) {
-      this.element.innerHTML = "<div contenteditable='true'></div>";
-    }
+    this.propertiesAllowed = [
+      PropertyAllowed.text,
+      PropertyAllowed.background,
+      PropertyAllowed.line,
+    ];
   }
   init() {
     super.init();
-    this.element.innerHTML = "<div contenteditable='true'></div>";
+    this.element.innerHTML =
+      "<div style='display: table-cell' contenteditable='true'></div>";
+    this.strokeWidth = "0";
   }
   set x(x: number) {
     this.element.setAttributeNS(null, "x", x);
@@ -31,9 +35,55 @@ export class Text extends Shape {
   get y() {
     return Number(this.element.getAttributeNS(null, "y"));
   }
+  set stroke(stroke: string) {
+    this.element.firstChild.style.borderStyle = "solid";
+    if (stroke == "none") {
+      this.element.firstChild.style.borderColor = "transparent";
+    }
+    this.element.firstChild.style.borderColor = stroke;
+  }
+  get stroke() {
+    if (
+      this.element.firstChild.style.borderColor == "black" ||
+      this.element.firstChild.style.borderColor == "transparent"
+    ) {
+      return "none";
+    }
+    return this.element.firstChild.style.borderColor;
+  }
+  set fill(fill: string) {
+    this.element.firstChild.style.background = fill;
+  }
+  get fill() {
+    if (this.element.firstChild.style.background)
+      return this.element.firstChild.style.background;
+    return "none";
+  }
+  set strokeWidth(strokeWidth: string) {
+    this.element.firstChild.style.borderWidth = strokeWidth + "px";
+    this.height = this.height;
+  }
+  get strokeWidth() {
+    if (this.element.firstChild.style.borderWidth)
+      return this.element.firstChild.style.borderWidth.replace("px", "");
+    return "0";
+  }
+  set strokeOpacity(strokeOpacity: string) {
+    this.opacity = strokeOpacity;
+  }
+  get strokeOpacity() {
+    return this.opacity;
+  }
+  set fillOpacity(fillOpacity: string) {
+    this.opacity = fillOpacity;
+  }
+  get fillOpacity() {
+    return this.opacity;
+  }
 
   set width(width: number) {
     this.element.setAttributeNS(null, "width", width);
+    this.element.firstElementChild.style.width = width + "px";
   }
   get width() {
     return Number(this.element.getAttributeNS(null, "width"));
@@ -41,6 +91,8 @@ export class Text extends Shape {
 
   set height(height: number) {
     this.element.setAttributeNS(null, "height", height);
+    this.element.firstElementChild.style.height =
+      height - Number(this.strokeWidth) * 2 + "px";
   }
   get height() {
     return Number(this.element.getAttributeNS(null, "height"));

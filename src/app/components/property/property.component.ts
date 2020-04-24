@@ -18,6 +18,7 @@ export class PropertyComponent implements OnInit {
   }
   updateText(event) {
     this.shapeEventService.shape.color = event.color;
+    this.shapeEventService.shape.opacity = event.opacity;
     this.shapeEventService.property.textColor = event.color;
     this.shapeEventService.property.textOpacity = event.opacity;
   }
@@ -32,5 +33,11 @@ export class PropertyComponent implements OnInit {
     this.shapeEventService.shape.strokeOpacity = event.opacity;
     this.shapeEventService.property.lineColor = event.color;
     this.shapeEventService.property.lineOpacity = event.opacity;
+  }
+  setVisibleStroke(event) {
+    this.shapeEventService.shape.stroke = event.checked ? "#000000" : "none";
+  }
+  setVisibleFill(event) {
+    this.shapeEventService.shape.fill = event.checked ? "#ffffff" : "none";
   }
 }
