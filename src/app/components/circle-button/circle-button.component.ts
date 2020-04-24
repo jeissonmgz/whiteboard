@@ -27,6 +27,6 @@ export class CircleButtonComponent implements OnInit {
   getColor(): string {
     if (this.isFloat) return "primary";
     if (this.isSelected) return "accent";
-    return "primary";
+    return "";
   }
 }
