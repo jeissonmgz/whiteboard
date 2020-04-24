@@ -22,8 +22,12 @@ export class ViewBoxDirective {
 
   viewSubscription: Subscription;
   drawSubscription: Subscription;
+  controlSubscription: Subscription;
+  clearControlSubscription: Subscription;
 
   private animation;
+  private canvas;
+  private controls;
 
   constructor(
     private svg: ElementRef,
@@ -32,6 +36,7 @@ export class ViewBoxDirective {
     private mouseService: MouseService,
     private renderer2: Renderer2
   ) {
+    this.viewBoxService.actualView = this.svg;
     this.viewSubscription = this.viewBoxService
       .getChanges()
       .subscribe((change) => {
@@ -55,12 +60,24 @@ export class ViewBoxDirective {
     this.drawSubscription = this.shapeEventService
       .getDrawSubject()
       .subscribe((elemenChild) => {
-        this.renderer2.appendChild(this.svg.nativeElement, elemenChild);
+        this.renderer2.appendChild(this.canvas, elemenChild);
+      });
+    this.controlSubscription = this.shapeEventService
+      .getControlSubject()
+      .subscribe((elemenChild) => {
+        this.renderer2.appendChild(this.controls, elemenChild);
+      });
+    this.clearControlSubscription = this.viewBoxService
+      .getClearControlSubject()
+      .subscribe(() => {
+        this.controls.innerHTML = "";
       });
   }
 
   ngOnInit() {
     this.animation = this.svg.nativeElement.querySelector("animate");
+    this.canvas = this.svg.nativeElement.getElementById("canvas");
+    this.controls = this.svg.nativeElement.getElementById("controls");
   }
 
   @HostListener("window:load", ["$event"])

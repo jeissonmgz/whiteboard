@@ -19,7 +19,7 @@ export class ControlComponent implements OnInit {
 
   constructor(
     public shapeEventService: ShapeEventService,
-    private viewBoxService: ViewBoxService
+    public viewBoxService: ViewBoxService
   ) {}
 
   ngOnInit(): void {}

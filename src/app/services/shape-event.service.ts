@@ -4,12 +4,14 @@ import { Shape, State, EditState, TypeShape } from "./shapes/shape";
 import { Point } from "./shapes/point";
 import { ShapeFactory } from "./shapes/shape-factory";
 import { Property } from "./shapes/properties/property";
+import { ViewBoxService } from "./view-box.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class ShapeEventService {
   drawSubject = new Subject<any>();
+  controlSubject = new Subject<any>();
   shape: Shape;
   property: Property;
   startClick: number = 0;
@@ -18,14 +20,14 @@ export class ShapeEventService {
   typeShape: TypeShape;
   shapeSelected: TypeShape;
 
-  constructor() {
+  constructor(public viewBoxService: ViewBoxService) {
     this.changeShape(null);
     this.property = new Property();
   }
 
   resetChanges() {
     if (this.shape != null) {
-      this.shape.removeControlsEdit();
+      this.viewBoxService.clearControlSubject.next();
       this.shape.editState = EditState.DEFAULT;
     }
   }
@@ -41,7 +43,9 @@ export class ShapeEventService {
 
   beginCreate(event, point: Point) {
     this.startClick = event.timeStamp;
+    this.viewBoxService.clearControlSubject.next();
     this.shape.init();
+    this.viewBoxService.saveView();
     this.shape.firstPoint(new Point(point.x, point.y));
     this.shape.stroke = "black";
     this.drawSubject.next(this.shape.element);
@@ -58,7 +62,7 @@ export class ShapeEventService {
     this.shape.state = State.FINISH;
     let controls = this.shape.generateControlsEdit();
     controls.forEach((control) => {
-      this.drawSubject.next(control.element);
+      this.controlSubject.next(control.element);
     });
   }
 
@@ -68,5 +72,9 @@ export class ShapeEventService {
 
   getDrawSubject(): Observable<any> {
     return this.drawSubject.asObservable();
+  }
+
+  getControlSubject(): Observable<any> {
+    return this.controlSubject.asObservable();
   }
 }

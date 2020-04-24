@@ -1,6 +1,16 @@
 <div class="container">
-  <app-circle-button icon="undo" info="Deshacer"></app-circle-button>
-  <app-circle-button icon="redo" info="Rehacer"></app-circle-button>
+  <app-circle-button
+    icon="undo"
+    info="Deshacer"
+    *ngIf="viewBoxService.historialViews.length > 0"
+    (click)="viewBoxService.undoView()"
+  ></app-circle-button>
+  <app-circle-button
+    icon="redo"
+    info="Rehacer"
+    *ngIf="viewBoxService.deleteViews.length > 0"
+    (click)="viewBoxService.redoView()"
+  ></app-circle-button>
   <span class="space"></span>
   <app-circle-button
     icon="pan_tool"

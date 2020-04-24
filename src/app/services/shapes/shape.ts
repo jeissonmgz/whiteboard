@@ -130,7 +130,6 @@ export abstract class Shape {
     else return "top";
   }
   init() {
-    this.removeControlsEdit();
     this.element = document.createElementNS(SVG_NS, this.name);
     this.state = State.INIT;
     this.editState = EditState.DEFAULT;
@@ -138,20 +137,10 @@ export abstract class Shape {
   beginEdit(stateEdit: EditState) {
     this.state = State.EDIT;
     this.editState = stateEdit;
-    this.removeControlsEdit();
   }
-  remove(element = null) {
-    if (!element) {
-      element = this.element;
-    }
-    let parent = element.parentNode;
-    parent.removeChild(element);
-  }
-  removeControlsEdit(): void {
-    this.controlsEdit.forEach((control) => {
-      this.remove(control.element);
-    });
-    this.controlsEdit = [];
+  remove() {
+    let parent = this.element.parentNode;
+    parent.removeChild(this.element);
   }
   abstract firstPoint(point: Point): ElementRef;
   abstract editPoint(point: Point): void;

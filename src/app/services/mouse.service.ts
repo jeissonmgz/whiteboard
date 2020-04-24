@@ -13,6 +13,7 @@ export class MouseService {
 
   down(event, point: Point) {
     if (event.target.hasAttributeNS(null, "secundary")) {
+      this.shapeEventService.viewBoxService.clearControlSubject.next();
       this.shapeEventService.shape.beginEdit(
         Number(event.target.getAttributeNS(null, "state"))
       );
