@@ -1,0 +1,26 @@
+<mat-form-field appearance="outline">
+  <mat-label>Color</mat-label>
+  <input matInput type="color" [(ngModel)]="color" (change)="sendValues()" />
+  <div class="container">
+    <span *ngFor="let colorRow of colors" class="column">
+      <div
+        *ngFor="let colorCell of colorRow"
+        class="color"
+        [ngStyle]="{ background: colorCell }"
+        [matTooltip]="colorCell"
+        (click)="updateColor(colorCell)"
+      ></div>
+    </span>
+    <mat-slider
+      thumbLabel="true"
+      max="1"
+      min="0"
+      step="0.01"
+      [displayWith]="formatPercentageLabel"
+      [(ngModel)]="opacity"
+      vertical="true"
+      (input)="updateOpacity($event.value)"
+    >
+    </mat-slider>
+  </div>
+</mat-form-field>

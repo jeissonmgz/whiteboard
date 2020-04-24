@@ -1,10 +1,16 @@
 <button
   [matTooltip]="info"
-  [color]="isFloat ? 'primary' : 'accent'"
+  [color]="isFloat || isSelected ? 'primary' : ''"
   mat-mini-fab
   [ngClass]="buttonStyle"
 >
-  <mat-icon [ngStyle]="{ transform: rotateIcon }" class="material-icons">
+  <mat-icon
+    [ngStyle]="{ transform: rotateIcon }"
+    [ngClass]="{
+      'material-icons': true,
+      'mat-icon-outline': !isSelected && !isFloat
+    }"
+  >
     {{ icon }}
   </mat-icon>
 </button>

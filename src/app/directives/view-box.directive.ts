@@ -1,6 +1,9 @@
 import { Directive, ElementRef, Renderer2, HostListener } from "@angular/core";
 import { Subscription } from "rxjs";
 import { ViewBoxService } from "../services/view-box.service";
+import { ShapeEventService } from "../services/shape-event.service";
+import { MouseService } from "../services/mouse.service";
+import { Point } from "../services/shapes/point";
 
 @Directive({
   selector: "[appViewBox]",
@@ -15,29 +18,75 @@ export class ViewBoxDirective {
     y: 0,
   };
   myViewBox: string;
+  zoom: number = 1;
 
-  subscription: Subscription;
+  viewSubscription: Subscription;
+  drawSubscription: Subscription;
+  controlSubscription: Subscription;
+  clearControlSubscription: Subscription;
 
   private animation;
+  private canvas;
+  private controls;
 
   constructor(
     private svg: ElementRef,
     private viewBoxService: ViewBoxService,
+    private shapeEventService: ShapeEventService,
+    private mouseService: MouseService,
     private renderer2: Renderer2
   ) {
-    this.subscription = this.viewBoxService.getChanges().subscribe((change) => {
-      if (change.scroll) {
-        this.scroll(
-          change.scroll.orientation,
-          change.scroll.direction,
-          change.scroll.value
-        );
-      }
-    });
+    this.viewBoxService.actualView = this.svg;
+    this.viewSubscription = this.viewBoxService
+      .getChanges()
+      .subscribe((change) => {
+        if (change.scroll) {
+          this.scroll(
+            change.scroll.orientation,
+            change.scroll.direction,
+            change.scroll.value
+          );
+        } else {
+          if (change.zoom == 100) {
+            this.zoom = 1;
+          } else if (change.zoom) {
+            if (this.zoom > 0.25) this.zoom -= 0.25;
+          } else {
+            this.zoom += 0.25;
+          }
+          this.updateScreen();
+        }
+      });
+    this.drawSubscription = this.shapeEventService
+      .getDrawSubject()
+      .subscribe((elemenChild) => {
+        this.renderer2.appendChild(this.canvas, elemenChild);
+      });
+    this.controlSubscription = this.shapeEventService
+      .getControlSubject()
+      .subscribe((elemenChild) => {
+        this.renderer2.appendChild(this.controls, elemenChild);
+      });
+    this.clearControlSubscription = this.viewBoxService
+      .getClearControlSubject()
+      .subscribe(() => {
+        this.controls.innerHTML = "";
+      });
   }
 
   ngOnInit() {
     this.animation = this.svg.nativeElement.querySelector("animate");
+    this.canvas = this.svg.nativeElement.getElementById("canvas");
+    this.controls = this.svg.nativeElement.getElementById("controls");
+  }
+
+  @HostListener("window:load", ["$event"])
+  onLoad(event) {
+    this.svg.nativeElement.viewBox.baseVal.width =
+      event.currentTarget.innerWidth;
+    this.svg.nativeElement.viewBox.baseVal.height =
+      event.currentTarget.innerHeight;
+    this.updateScreen();
   }
 
   @HostListener("window:resize", ["$event"])
@@ -45,6 +94,38 @@ export class ViewBoxDirective {
     this.svg.nativeElement.viewBox.baseVal.width = event.target.innerWidth;
     this.svg.nativeElement.viewBox.baseVal.height = event.target.innerHeight;
     this.updateScreen();
+  }
+
+  @HostListener("click", ["$event"])
+  onClick(event) {
+    let point = this.getPoint(event);
+    this.mouseService.click(event, point);
+  }
+
+  @HostListener("mousemove", ["$event"])
+  onMouseMove(event) {
+    let point = this.getPoint(event);
+    this.mouseService.move(event, point);
+  }
+
+  @HostListener("mouseup", ["$event"])
+  onMouseUp(event) {
+    let point = this.getPoint(event);
+    this.mouseService.up(event, point);
+  }
+
+  @HostListener("mousedown", ["$event"])
+  onMouseDown(event) {
+    let point = this.getPoint(event);
+    this.mouseService.down(event, point);
+  }
+
+  getPoint(event): Point {
+    let positionSvg = this.svg.nativeElement.getBoundingClientRect();
+    return new Point(
+      (event.clientX - positionSvg.left) * this.zoom + this.positionActual.x,
+      (event.clientY - positionSvg.top) * this.zoom + this.positionActual.y
+    );
   }
 
   applyScroll(isHorizontal: boolean, isTopOrLeft: boolean, value: number) {
@@ -78,9 +159,9 @@ export class ViewBoxDirective {
       " " +
       position.y +
       " " +
-      this.svg.nativeElement.viewBox.baseVal.width +
+      this.svg.nativeElement.viewBox.baseVal.width * this.zoom +
       " " +
-      this.svg.nativeElement.viewBox.baseVal.height
+      this.svg.nativeElement.viewBox.baseVal.height * this.zoom
     );
   }
 

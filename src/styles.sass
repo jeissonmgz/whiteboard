@@ -1,5 +1,14 @@
+@import "~@angular/material/theming"
+@import "~src/custom-theme"
+
 html, body
     margin: 0
     padding: 0
     height: 100%
     width: 100%
+
+svg div:focus
+    outline: none
+
+.mat-icon-outline
+    color: mat-color($board-primary)

@@ -1,31 +1,68 @@
 <div class="container">
-  <app-circle-button icon="undo" info="Deshacer"></app-circle-button>
-  <app-circle-button icon="redo" info="Rehacer"></app-circle-button>
+  <app-circle-button
+    icon="undo"
+    info="Deshacer"
+    *ngIf="viewBoxService.historialViews.length > 0"
+    (click)="viewBoxService.undoView()"
+  ></app-circle-button>
+  <app-circle-button
+    icon="redo"
+    info="Rehacer"
+    *ngIf="viewBoxService.deleteViews.length > 0"
+    (click)="viewBoxService.redoView()"
+  ></app-circle-button>
   <span class="space"></span>
-  <app-circle-button icon="pan_tool" info="Seleccionar"></app-circle-button>
-  <app-circle-button icon="title" info="Texto"></app-circle-button>
+  <app-circle-button
+    icon="pan_tool"
+    info="Seleccionar"
+    [isSelected]="shapeEventService.typeShape == null"
+    (click)="selectShape()"
+  ></app-circle-button>
+  <app-circle-button
+    icon="title"
+    info="Texto"
+    [isSelected]="shapeEventService.typeShape == 'foreignObject'"
+    (click)="selectText()"
+  ></app-circle-button>
   <app-circle-button
     icon="remove"
     rotateIcon="rotate(45deg)"
     info="Línea"
+    [isSelected]="shapeEventService.typeShape == 'line'"
+    (click)="selectLine()"
   ></app-circle-button>
-  <app-circle-button icon="show_chart" info="Polilínea"></app-circle-button>
-  <app-circle-button icon="call_made" info="Flecha"></app-circle-button>
+  <app-circle-button
+    icon="show_chart"
+    info="Polilínea"
+    [isSelected]="shapeEventService.typeShape == 'polyline'"
+    (click)="selectPolyline()"
+  ></app-circle-button>
   <app-circle-button
     icon="check_box_outline_blank"
     info="Rectángulo"
+    [isSelected]="shapeEventService.typeShape == 'rect'"
+    (click)="selectRect()"
   ></app-circle-button>
   <app-circle-button
     icon="radio_button_unchecked"
-    info="Ovalo"
+    info="Elipse"
+    [isSelected]="shapeEventService.typeShape == 'ellipse'"
+    (click)="selectEllipse()"
   ></app-circle-button>
-  <app-circle-button icon="crop_original" info="Imágen"></app-circle-button>
   <span class="space"></span>
-  <app-circle-button icon="zoom_in" info="Ampliar"></app-circle-button>
-  <app-circle-button icon="zoom_out" info="Disminuir"></app-circle-button>
-  <app-circle-button icon="fullscreen" info="Ver todo"></app-circle-button>
+  <app-circle-button
+    icon="zoom_in"
+    info="Ampliar"
+    (click)="zoom(ZOOM_IN)"
+  ></app-circle-button>
+  <app-circle-button
+    icon="zoom_out"
+    info="Disminuir"
+    (click)="zoom(ZOOM_OUT)"
+  ></app-circle-button>
   <app-circle-button
     icon="fullscreen_exit"
     info="Reestablecer"
+    (click)="zoom(ZOOM_100)"
   ></app-circle-button>
 </div>

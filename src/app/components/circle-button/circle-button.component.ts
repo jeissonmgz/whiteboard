@@ -11,6 +11,7 @@ export class CircleButtonComponent implements OnInit {
   @Input() rotateIcon = "";
   @Input() isFloat: boolean = false;
   @Input() position: string = "";
+  @Input() isSelected: boolean = false;
   buttonStyle: string = "circle-link";
 
   constructor() {}
@@ -21,5 +22,11 @@ export class CircleButtonComponent implements OnInit {
     } else {
       this.buttonStyle += " move-hover";
     }
+  }
+
+  getColor(): string {
+    if (this.isFloat) return "primary";
+    if (this.isSelected) return "accent";
+    return "";
   }
 }
