@@ -2,6 +2,13 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.7.
 
+Prueba la demo [aqui](https://jeissonmgz.github.io/whiteboard/), fue generada con
+
+```bash
+ng build --prod --base-href https://jeissonmgz.github.io/whiteboard/
+ngh --dir dist/board
+```
+
 ## Resumen
 
 WhiteBoard es una herramienta para crear tableros en línea y así facilitar expesar nuestras ideas gráficamente... aún se encuentra en desarrollo, y una vez se posea un PMV se publicara en githb pages.
