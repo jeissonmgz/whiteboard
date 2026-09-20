@@ -4,6 +4,7 @@ import styles from './ColorPicker.module.scss';
 interface ColorPickerProps {
   color?: string;
   opacity?: number;
+  allowNone?: boolean;
   onChange: (values: { color: string; opacity: number }) => void;
 }
 
@@ -132,37 +133,66 @@ function getComputedHex(colorStr?: string): string {
 export const ColorPicker: React.FC<ColorPickerProps> = ({
   color = '#000000',
   opacity = 1,
+  allowNone = false,
   onChange,
 }) => {
   const handleColorChange = (newColor: string) => {
     onChange({ color: newColor, opacity });
   };
 
-  const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newOpacity = parseFloat(e.target.value);
+  const handleOpacityChange = (newOpacity: number) => {
     onChange({ color, opacity: newOpacity });
   };
 
+  const computedHex = getComputedHex(color);
+  const opacityPercent = Math.round(opacity * 100);
+
   return (
     <div className={styles.colorPickerContainer}>
-      <div className={styles.inputRow}>
-        <label className={styles.label}>Color</label>
-        <input
-          type="color"
-          value={getComputedHex(color)}
-          onChange={(e) => handleColorChange(e.target.value)}
-          className={styles.nativeColorInput}
-        />
+      {/* Header Row: Native Picker Trigger & Color Label */}
+      <div className={styles.headerRow}>
+        <div className={styles.customColorPicker}>
+          <div
+            className={styles.swatchPreview}
+            style={{ backgroundColor: color === 'none' ? 'transparent' : color }}
+          >
+            {color === 'none' && <span className="material-icons">block</span>}
+          </div>
+          <input
+            type="color"
+            value={computedHex}
+            onChange={(e) => handleColorChange(e.target.value)}
+            className={styles.nativeColorInput}
+            title="Seleccionar color personalizado"
+          />
+          <span className={styles.colorHexCode}>
+            {color === 'none' ? 'Transparente' : color.startsWith('var(') ? 'Paleta Tema' : color.toUpperCase()}
+          </span>
+        </div>
+
+        {allowNone && (
+          <button
+            type="button"
+            className={`${styles.noneBtn} ${color === 'none' ? styles.activeNone : ''}`}
+            onClick={() => handleColorChange('none')}
+            title="Sin color / Transparente"
+          >
+            <span className="material-icons">block</span>
+            <span>Sin color</span>
+          </button>
+        )}
       </div>
 
-      <div className={styles.paletteContainer}>
+      {/* Color Swatch Grid (Larger 18px x 18px swatches) */}
+      <div className={styles.colorGridContainer}>
         <div className={styles.colorGrid}>
           {COLORS.map((row, rowIndex) => (
-            <div key={rowIndex} className={styles.column}>
+            <div key={rowIndex} className={styles.row}>
               {row.map((cellColor, cellIndex) => (
-                <div
+                <button
                   key={cellIndex}
-                  className={styles.colorCell}
+                  type="button"
+                  className={`${styles.colorCell} ${color === cellColor ? styles.selectedCell : ''}`}
                   style={{ backgroundColor: cellColor }}
                   title={cellColor}
                   onClick={() => handleColorChange(cellColor)}
@@ -171,22 +201,46 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             </div>
           ))}
         </div>
+      </div>
 
-        <div className={styles.sliderContainer}>
+      {/* Horizontal Opacity Slider Control */}
+      <div className={styles.opacitySection}>
+        <div className={styles.opacityHeader}>
+          <div className={styles.opacityTitle}>
+            <span className="material-icons">opacity</span>
+            <span>Opacidad</span>
+          </div>
+          <span className={styles.opacityBadge}>{opacityPercent}%</span>
+        </div>
+
+        <div className={styles.sliderRow}>
           <input
             type="range"
             min="0"
             max="1"
             step="0.01"
             value={opacity}
-            onChange={handleOpacityChange}
-            className={styles.verticalSlider}
-            title={`Opacidad: ${Math.round(opacity * 100)}%`}
+            onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
+            className={styles.horizontalSlider}
+            title={`Opacidad actual: ${opacityPercent}%`}
           />
-          <span className={styles.opacityValue}>{Math.round(opacity * 100)}%</span>
+        </div>
+
+        <div className={styles.opacityPresets}>
+          {[0.25, 0.5, 0.75, 1].map((val) => (
+            <button
+              key={val}
+              type="button"
+              className={`${styles.presetChip} ${Math.abs(opacity - val) < 0.02 ? styles.activeChip : ''}`}
+              onClick={() => handleOpacityChange(val)}
+            >
+              {Math.round(val * 100)}%
+            </button>
+          ))}
         </div>
       </div>
     </div>
   );
 };
+
 

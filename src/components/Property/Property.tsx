@@ -182,8 +182,9 @@ export const Property: React.FC = () => {
               {openSection === 'stroke' && selectedShape.stroke !== 'none' && (
                 <div className={styles.panelBody}>
                   <ColorPicker
-                    color={selectedShape.stroke || '#000000'}
+                    color={selectedShape.stroke || 'var(--text-primary)'}
                     opacity={Number(selectedShape.strokeOpacity ?? 1)}
+                    allowNone={true}
                     onChange={({ color, opacity }) =>
                       updateShapeProperties(selectedShape.id, {
                         stroke: color,
@@ -203,6 +204,18 @@ export const Property: React.FC = () => {
                         })
                       }
                     />
+                    <div className={styles.quickSizes}>
+                      {[1, 2, 4, 8, 12].map((w) => (
+                        <button
+                          key={w}
+                          type="button"
+                          className={Number(selectedShape.strokeWidth || 1) === w ? styles.activeSize : ''}
+                          onClick={() => updateShapeProperties(selectedShape.id, { strokeWidth: w })}
+                        >
+                          {w}px
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   {(selectedShape.type === TypeShape.LINE || selectedShape.type === TypeShape.ARROW) && (
                     <div className={styles.arrowheadControls}>
@@ -260,8 +273,9 @@ export const Property: React.FC = () => {
               {openSection === 'fill' && selectedShape.fill !== 'none' && (
                 <div className={styles.panelBody}>
                   <ColorPicker
-                    color={selectedShape.fill || '#ffffff'}
+                    color={selectedShape.fill || 'var(--bg-surface-solid)'}
                     opacity={Number(selectedShape.fillOpacity ?? 1)}
+                    allowNone={true}
                     onChange={({ color, opacity }) =>
                       updateShapeProperties(selectedShape.id, {
                         fill: color,
