@@ -1,57 +1,48 @@
-# WhiteBoard
+# Whiteboard Infinite Canvas
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.7.
+Whiteboard es una aplicación web interactiva de lienzo infinito diseñada para dibujo vectorial, diagramación y maquetación gráfica en tiempo real.
 
-Prueba la demo [aqui](https://jeissonmgz.github.io/whiteboard/), fue generada con
+Demo en vivo: [https://jeissonmgz.github.io/whiteboard/](https://jeissonmgz.github.io/whiteboard/)
+
+## Características Principales
+
+- Lienzo Infinito: Navegación libre con desplazamiento, arrastre y zoom centrado.
+- Herramientas de Dibujo: Creación de líneas, flechas, polilíneas, rectángulos, elipses y bloques de texto.
+- Selección y Edición Grupal: Control unificado para mover, escalar, rotar, duplicar y transformar múltiples elementos simultáneamente.
+- Ordenamiento de Capas: Controles para superponer, enviar al fondo, avanzar o retroceder elementos.
+- Personalización de Estilos: Selección de colores de borde y relleno, grosores, opacidad y alineación de texto.
+- Modos de Color: Compatibilidad con tema Claro, Oscuro y Detección Automática del Sistema.
+- Internacionalización (i18n): Soporte multilingüe en español, inglés, francés, portugués y alemán, con detección automática del navegador.
+- Persistencia y Sincronización: Almacenamiento local del lienzo y configuración, con sincronización automática en tiempo real entre pestañas abiertas.
+- Exportación e Impresión: Exportación a formatos PNG, JPG y SVG (todo el lienzo o selección), guardado/carga de proyectos en JSON e impresión nativa.
+
+## Requisitos Previos
+
+- Node.js (versión 18 o superior)
+- npm
+
+## Instalación y Ejecución
+
+1. Clonar el repositorio e instalar las dependencias:
 
 ```bash
-ng build --prod --base-href https://jeissonmgz.github.io/whiteboard/
-ngh --dir dist/board
+npm install
 ```
 
-## Resumen
+2. Iniciar el servidor de desarrollo:
 
-WhiteBoard es una herramienta para crear tableros en línea y así facilitar expesar nuestras ideas gráficamente... aún se encuentra en desarrollo, y una vez se posea un PMV se publicara en githb pages.
+```bash
+npm run dev
+```
 
-## Funcionalidades previstas
+3. Compilar para producción:
 
-- Scroll infinito
-- Ingresar texto
-- Dibujo libre
-- Figuras gemetricas: Líneas, rectangulos y ovalos
-- Agregar multiples páginas
-- Descargar tableros
-- Guardar tableros en linea
-- Edición en simultaneo y en tiempo real
+```bash
+npm run build
+```
 
-## Que tendra el MVP
+4. Previsualizar la compilación de producción:
 
-- Scroll infinito
-- Ingresar texto
-- Figuras gemetricas: Líneas, rectangulos y ovalos
-
-## Information about Angular 9
-
-### Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-### Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-### Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-### Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-### Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-### Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```bash
+npm run preview
+```
