@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { ShapeData, TypeShape, EditState, Point } from '../types/shape';
-import { createNewShape, updateShapePoint, getShapeBoundingBox, updateGroupShapes } from '../services/shapeUtils';
+import { createNewShape, updateShapePoint, getShapeBoundingBox, updateGroupShapes, duplicateShape } from '../services/shapeUtils';
 
 interface ViewBoxState {
   x: number;
@@ -26,6 +26,8 @@ interface WhiteboardContextType {
   selectShapes: (ids: string[]) => void;
   updateShapeProperties: (id: string, updates: Partial<ShapeData>, skipHistory?: boolean) => void;
   deleteShape: (id: string) => void;
+  duplicateSelectedShapes: () => void;
+
 
   // Drawing & Editing lifecycle
   startDrawingOrEditing: (point: Point, targetElement?: Element) => void;
@@ -138,6 +140,19 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     },
     [saveHistory, selectedShapeIds]
   );
+
+  const duplicateSelectedShapes = useCallback(() => {
+    if (selectedShapeIds.length === 0) return;
+    setShapes((prevShapes) => {
+      saveHistory(prevShapes);
+      const shapesToDuplicate = prevShapes.filter((s) => selectedShapeIds.includes(s.id));
+      const newClones = shapesToDuplicate.map((s) => duplicateShape(s, { x: 20, y: 20 }));
+      const newIds = newClones.map((c) => c.id);
+      setSelectedShapeIds(newIds);
+      return [...prevShapes, ...newClones];
+    });
+  }, [selectedShapeIds, saveHistory]);
+
 
   const snapshotInitialShapes = useCallback((shapeList: ShapeData[]) => {
     const map = new Map<string, ShapeData>();
@@ -496,6 +511,9 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         } else if (e.key === 'y' || e.key === 'Y') {
           e.preventDefault();
           redo();
+        } else if (e.key === 'd' || e.key === 'D') {
+          e.preventDefault();
+          duplicateSelectedShapes();
         }
       } else {
         // Single key shortcuts when Ctrl/Cmd is not pressed
@@ -558,7 +576,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedShapeIds, deleteShape, handleToolChange, scroll]);
+  }, [undo, redo, selectedShapeIds, deleteShape, duplicateSelectedShapes, handleToolChange, scroll]);
 
   return (
     <WhiteboardContext.Provider
@@ -576,6 +594,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         selectShapes,
         updateShapeProperties,
         deleteShape,
+        duplicateSelectedShapes,
         startDrawingOrEditing,
         handleMouseMove,
         handleMouseUp,
@@ -592,6 +611,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       {children}
     </WhiteboardContext.Provider>
   );
+
 };
 
 export const useWhiteboard = () => {

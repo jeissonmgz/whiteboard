@@ -12,6 +12,8 @@ export const Control: React.FC = () => {
     canRedo,
     undo,
     redo,
+    selectedShapeIds,
+    duplicateSelectedShapes,
     changeZoom,
   } = useWhiteboard();
 
@@ -28,6 +30,12 @@ export const Control: React.FC = () => {
         info="Rehacer (⌘⇧Z / Ctrl+Y)"
         disabled={!canRedo}
         onClick={redo}
+      />
+      <CircleButton
+        icon="content_copy"
+        info="Duplicar (⌘D / Ctrl+D)"
+        disabled={selectedShapeIds.length === 0}
+        onClick={duplicateSelectedShapes}
       />
       <span className={styles.space}></span>
       <CircleButton

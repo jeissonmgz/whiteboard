@@ -74,3 +74,54 @@ export function updateShapePoint(
   const strategy = ShapeEngineFactory.getStrategy(shape.type);
   return strategy.updateShapePoint(shape, currentPoint, initPoint, editState, initialShape);
 }
+
+export function duplicateShape(shape: ShapeData, offset = { x: 20, y: 20 }): ShapeData {
+  const newId = shape.type + '_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  switch (shape.type) {
+    case TypeShape.RECT:
+    case TypeShape.TEXT:
+      return {
+        ...shape,
+        id: newId,
+        x: shape.x + offset.x,
+        y: shape.y + offset.y,
+      };
+    case TypeShape.ELLIPSE:
+      return {
+        ...shape,
+        id: newId,
+        cx: shape.cx + offset.x,
+        cy: shape.cy + offset.y,
+      };
+    case TypeShape.LINE:
+    case TypeShape.ARROW:
+      return {
+        ...shape,
+        id: newId,
+        x1: shape.x1 + offset.x,
+        y1: shape.y1 + offset.y,
+        x2: shape.x2 + offset.x,
+        y2: shape.y2 + offset.y,
+      };
+    case TypeShape.POLYLINE: {
+      const newPoints = shape.points
+        .trim()
+        .split(/\s+/)
+        .map((pair) => {
+          const parts = pair.split(',').map(Number);
+          if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            return `${parts[0] + offset.x},${parts[1] + offset.y}`;
+          }
+          return pair;
+        })
+        .join(' ');
+      return {
+        ...shape,
+        id: newId,
+        points: newPoints,
+      };
+    }
+  }
+}
+
+
