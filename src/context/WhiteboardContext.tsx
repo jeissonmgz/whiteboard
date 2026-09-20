@@ -24,7 +24,7 @@ interface WhiteboardContextType {
   setActiveTool: (tool: TypeShape | null) => void;
   selectShape: (id: string | null) => void;
   selectShapes: (ids: string[]) => void;
-  updateShapeProperties: (id: string, updates: Partial<ShapeData>) => void;
+  updateShapeProperties: (id: string, updates: Partial<ShapeData>, skipHistory?: boolean) => void;
   deleteShape: (id: string) => void;
 
   // Drawing & Editing lifecycle
@@ -113,9 +113,11 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const updateShapeProperties = useCallback(
-    (id: string, updates: Partial<ShapeData>) => {
+    (id: string, updates: Partial<ShapeData>, skipHistory = false) => {
       setShapes((prevShapes) => {
-        saveHistory(prevShapes);
+        if (!skipHistory) {
+          saveHistory(prevShapes);
+        }
         const targetIds = selectedShapeIds.includes(id) ? selectedShapeIds : [id];
         return prevShapes.map((shape) =>
           targetIds.includes(shape.id) ? ({ ...shape, ...updates } as ShapeData) : shape

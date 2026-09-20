@@ -7,7 +7,7 @@ import styles from './Page.module.scss';
 interface TextItemProps {
   shape: TextShape;
   isSelected: boolean;
-  onUpdateContent: (id: string, newContent: string) => void;
+  onUpdateContent: (id: string, newContent: string, saveHistory?: boolean) => void;
   onSelect: (id: string) => void;
 }
 
@@ -19,35 +19,47 @@ const TextItem: React.FC<TextItemProps> = ({
 }) => {
   const editableRef = useRef<HTMLDivElement>(null);
 
+  // Synchronize DOM innerHTML only when NOT focused (e.g. initial mount or Undo/Redo)
+  useEffect(() => {
+    if (editableRef.current) {
+      if (
+        document.activeElement !== editableRef.current &&
+        editableRef.current.innerHTML !== (shape.content || '')
+      ) {
+        editableRef.current.innerHTML = shape.content || '';
+      }
+    }
+  }, [shape.content, shape.id]);
+
   // Auto focus text element and place caret when created or selected
   useEffect(() => {
     if (isSelected && editableRef.current) {
       const el = editableRef.current;
-      const timer = setTimeout(() => {
-        if (!el) return;
-        el.focus();
-        try {
-          const range = document.createRange();
-          range.selectNodeContents(el);
-          range.collapse(false);
-          const sel = window.getSelection();
-          if (sel) {
-            sel.removeAllRanges();
-            sel.addRange(range);
+      if (document.activeElement !== el) {
+        const timer = setTimeout(() => {
+          if (!el) return;
+          el.focus();
+          try {
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            const sel = window.getSelection();
+            if (sel) {
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+          } catch (e) {
+            // ignore selection error if element is unmounted
           }
-        } catch (e) {
-          // ignore selection error if element is unmounted
-        }
-      }, 50);
-      return () => clearTimeout(timer);
+        }, 50);
+        return () => clearTimeout(timer);
+      }
     }
   }, [isSelected]);
 
   const borderStyle = shape.stroke && shape.stroke !== 'none' ? 'solid' : 'none';
   const borderColor = shape.stroke || 'transparent';
   const borderWidth = `${shape.strokeWidth || 0}px`;
-  const width = Math.max(shape.width || 100, 50);
-  const height = Math.max(shape.height || 40, 30);
 
   return (
     <foreignObject
@@ -101,16 +113,15 @@ const TextItem: React.FC<TextItemProps> = ({
           padding: '2px',
         }}
         onInput={(e) => {
-          onUpdateContent(shape.id, e.currentTarget.innerHTML);
+          onUpdateContent(shape.id, e.currentTarget.innerHTML, false);
         }}
         onBlur={(e) => {
-          onUpdateContent(shape.id, e.currentTarget.innerHTML);
+          onUpdateContent(shape.id, e.currentTarget.innerHTML, true);
         }}
         onKeyDown={(e) => {
           // Prevent canvas global shortcuts while typing
           e.stopPropagation();
         }}
-        dangerouslySetInnerHTML={{ __html: shape.content || '' }}
       />
     </foreignObject>
   );
@@ -423,8 +434,8 @@ export const Page: React.FC = () => {
                     shape={shape}
                     isSelected={shape.id === selectedShapeId}
                     onSelect={selectShape}
-                    onUpdateContent={(id, content) =>
-                      updateShapeProperties(id, { content })
+                    onUpdateContent={(id, content, saveHistory) =>
+                      updateShapeProperties(id, { content }, !saveHistory)
                     }
                   />
                 </g>
