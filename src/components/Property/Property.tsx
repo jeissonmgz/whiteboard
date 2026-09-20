@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { PropertyAllowed } from '../../types/shape';
@@ -8,10 +8,97 @@ import styles from './Property.module.scss';
 export const Property: React.FC = () => {
   const { shapes, selectedShapeId, updateShapeProperties } = useWhiteboard();
 
+  // Accordion state - default stroke open
+  const [openSection, setOpenSection] = useState<'stroke' | 'fill' | 'text' | null>('stroke');
+
+  // Minimize / Collapse state
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Position & Drag state
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Clamp position when window is resized
+  useEffect(() => {
+    const handleResize = () => {
+      setPos((prevPos) => {
+        if (!prevPos || !containerRef.current) return prevPos;
+        const rect = containerRef.current.getBoundingClientRect();
+        const margin = 10;
+        const maxX = Math.max(0, window.innerWidth - rect.width - margin);
+        const maxY = Math.max(0, window.innerHeight - rect.height - margin);
+        return {
+          x: Math.min(Math.max(margin, prevPos.x), maxX),
+          y: Math.min(Math.max(margin, prevPos.y), maxY),
+        };
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const selectedShape = shapes.find((s) => s.id === selectedShapeId);
 
-  // Accordion state
-  const [openSection, setOpenSection] = useState<'stroke' | 'fill' | 'text' | null>('stroke');
+  // Drag handlers for floating property menu with viewport boundary clamping
+  const handlePointerDown = (e: React.PointerEvent) => {
+    // Only initiate drag when clicking header background or title (not toggle button or inputs)
+    if (
+      (e.target as HTMLElement).closest('button') ||
+      (e.target as HTMLElement).closest('input')
+    ) {
+      return;
+    }
+
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+
+    isDraggingRef.current = true;
+    dragOffsetRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const cardWidth = rect.width;
+    const cardHeight = rect.height;
+
+    const rawX = e.clientX - dragOffsetRef.current.x;
+    const rawY = e.clientY - dragOffsetRef.current.y;
+
+    // Keep card strictly within viewport bounds with 10px margin
+    const margin = 10;
+    const maxX = Math.max(0, window.innerWidth - cardWidth - margin);
+    const maxY = Math.max(0, window.innerHeight - cardHeight - margin);
+
+    const clampedX = Math.min(Math.max(margin, rawX), maxX);
+    const clampedY = Math.min(Math.max(margin, rawY), maxY);
+
+    setPos({ x: clampedX, y: clampedY });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch (err) {
+        // ignore
+      }
+    }
+  };
 
   if (!selectedShape) return null;
 
@@ -38,181 +125,233 @@ export const Property: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      {/* Contorno Panel */}
-      {isStrokeAllowed && (
-        <div className={styles.panel}>
-          <div className={styles.panelHeader} onClick={() => toggleSection('stroke')}>
-            <input
-              type="checkbox"
-              checked={selectedShape.stroke !== 'none'}
-              onChange={handleStrokeToggle}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <span className="material-icons">crop_square</span>
-            <span className={styles.title}>Contorno</span>
-          </div>
-          {openSection === 'stroke' && selectedShape.stroke !== 'none' && (
-            <div className={styles.panelBody}>
-              <ColorPicker
-                color={selectedShape.stroke || '#000000'}
-                opacity={Number(selectedShape.strokeOpacity ?? 1)}
-                onChange={({ color, opacity }) =>
-                  updateShapeProperties(selectedShape.id, {
-                    stroke: color,
-                    strokeOpacity: opacity,
-                  })
-                }
-              />
-              <div className={styles.inputField}>
-                <label>Grosor</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={selectedShape.strokeWidth || 1}
-                  onChange={(e) =>
-                    updateShapeProperties(selectedShape.id, {
-                      strokeWidth: Number(e.target.value),
-                    })
-                  }
-                />
-              </div>
-            </div>
-          )}
+    <div
+      ref={containerRef}
+      className={`${styles.container} ${collapsed ? styles.collapsed : ''}`}
+      style={
+        pos
+          ? { left: `${pos.x}px`, top: `${pos.y}px`, right: 'auto', transform: 'none' }
+          : undefined
+      }
+    >
+      <div
+        className={styles.mainHeader}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        <div className={styles.headerTitle}>
+          <span className="material-icons">tune</span>
+          <span className={styles.mainTitle}>Propiedades</span>
         </div>
-      )}
+        <button
+          className={styles.toggleBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCollapsed(!collapsed);
+          }}
+          title={collapsed ? 'Expandir propiedades' : 'Minimizar propiedades'}
+        >
+          <span className="material-icons">
+            {collapsed ? 'unfold_more' : 'unfold_less'}
+          </span>
+        </button>
+      </div>
 
-      {/* Relleno Panel */}
-      {isFillAllowed && (
-        <div className={styles.panel}>
-          <div className={styles.panelHeader} onClick={() => toggleSection('fill')}>
-            <input
-              type="checkbox"
-              checked={selectedShape.fill !== 'none'}
-              onChange={handleFillToggle}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <span className="material-icons">format_paint</span>
-            <span className={styles.title}>Relleno</span>
-          </div>
-          {openSection === 'fill' && selectedShape.fill !== 'none' && (
-            <div className={styles.panelBody}>
-              <ColorPicker
-                color={selectedShape.fill || '#ffffff'}
-                opacity={Number(selectedShape.fillOpacity ?? 1)}
-                onChange={({ color, opacity }) =>
-                  updateShapeProperties(selectedShape.id, {
-                    fill: color,
-                    fillOpacity: opacity,
-                  })
-                }
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Texto Panel */}
-      {isTextAllowed && (
-        <div className={styles.panel}>
-          <div className={styles.panelHeader} onClick={() => toggleSection('text')}>
-            <span className="material-icons">title</span>
-            <span className={styles.title}>Texto</span>
-          </div>
-          {openSection === 'text' && (
-            <div className={styles.panelBody}>
-              <ColorPicker
-                color={selectedShape.color || '#000000'}
-                opacity={Number(selectedShape.opacity ?? 1)}
-                onChange={({ color, opacity }) =>
-                  updateShapeProperties(selectedShape.id, {
-                    color,
-                    opacity,
-                  })
-                }
-              />
-              <div className={styles.buttonGroup}>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'left' })}
-                  className={selectedShape.textAlign === 'left' ? styles.active : ''}
-                  title="Izquierda"
-                >
-                  <span className="material-icons">format_align_left</span>
-                </button>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'center' })}
-                  className={selectedShape.textAlign === 'center' ? styles.active : ''}
-                  title="Centro"
-                >
-                  <span className="material-icons">format_align_center</span>
-                </button>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'right' })}
-                  className={selectedShape.textAlign === 'right' ? styles.active : ''}
-                  title="Derecha"
-                >
-                  <span className="material-icons">format_align_right</span>
-                </button>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'justify' })}
-                  className={selectedShape.textAlign === 'justify' ? styles.active : ''}
-                  title="Justificado"
-                >
-                  <span className="material-icons">format_align_justify</span>
-                </button>
-              </div>
-
-              <div className={styles.buttonGroup}>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'top' })}
-                  className={selectedShape.verticalAlign === 'top' ? styles.active : ''}
-                  title="Arriba"
-                >
-                  <span className="material-icons">vertical_align_top</span>
-                </button>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'middle' })}
-                  className={selectedShape.verticalAlign === 'middle' ? styles.active : ''}
-                  title="Medio"
-                >
-                  <span className="material-icons">vertical_align_center</span>
-                </button>
-                <button
-                  onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'bottom' })}
-                  className={selectedShape.verticalAlign === 'bottom' ? styles.active : ''}
-                  title="Abajo"
-                >
-                  <span className="material-icons">vertical_align_bottom</span>
-                </button>
-              </div>
-
-              <div className={styles.inputField}>
-                <label>Tamaño</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={selectedShape.fontSize || 12}
-                  onChange={(e) =>
-                    updateShapeProperties(selectedShape.id, {
-                      fontSize: Number(e.target.value),
-                    })
-                  }
-                />
-                <div className={styles.quickSizes}>
-                  <button onClick={() => updateShapeProperties(selectedShape.id, { fontSize: 12 })}>
-                    12
-                  </button>
-                  <button onClick={() => updateShapeProperties(selectedShape.id, { fontSize: 25 })}>
-                    25
-                  </button>
-                  <button onClick={() => updateShapeProperties(selectedShape.id, { fontSize: 50 })}>
-                    50
-                  </button>
-                  <button onClick={() => updateShapeProperties(selectedShape.id, { fontSize: 75 })}>
-                    75
-                  </button>
+      {!collapsed && (
+        <div className={styles.accordionList}>
+          {/* Contorno Panel */}
+          {isStrokeAllowed && (
+            <div className={`${styles.panel} ${openSection === 'stroke' ? styles.panelOpen : ''}`}>
+              <div className={styles.panelHeader} onClick={() => toggleSection('stroke')}>
+                <div className={styles.headerLeft}>
+                  <input
+                    type="checkbox"
+                    checked={selectedShape.stroke !== 'none'}
+                    onChange={handleStrokeToggle}
+                    onClick={(e) => e.stopPropagation()}
+                    title="Habilitar Contorno"
+                  />
+                  <span className="material-icons">crop_square</span>
+                  <span className={styles.title}>Contorno</span>
                 </div>
+                <span className={`material-icons ${styles.chevron}`}>
+                  {openSection === 'stroke' ? 'expand_less' : 'expand_more'}
+                </span>
               </div>
+              {openSection === 'stroke' && selectedShape.stroke !== 'none' && (
+                <div className={styles.panelBody}>
+                  <ColorPicker
+                    color={selectedShape.stroke || '#000000'}
+                    opacity={Number(selectedShape.strokeOpacity ?? 1)}
+                    onChange={({ color, opacity }) =>
+                      updateShapeProperties(selectedShape.id, {
+                        stroke: color,
+                        strokeOpacity: opacity,
+                      })
+                    }
+                  />
+                  <div className={styles.inputField}>
+                    <label>Grosor de borde (px)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={selectedShape.strokeWidth || 1}
+                      onChange={(e) =>
+                        updateShapeProperties(selectedShape.id, {
+                          strokeWidth: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Relleno Panel */}
+          {isFillAllowed && (
+            <div className={`${styles.panel} ${openSection === 'fill' ? styles.panelOpen : ''}`}>
+              <div className={styles.panelHeader} onClick={() => toggleSection('fill')}>
+                <div className={styles.headerLeft}>
+                  <input
+                    type="checkbox"
+                    checked={selectedShape.fill !== 'none'}
+                    onChange={handleFillToggle}
+                    onClick={(e) => e.stopPropagation()}
+                    title="Habilitar Relleno"
+                  />
+                  <span className="material-icons">format_paint</span>
+                  <span className={styles.title}>Relleno</span>
+                </div>
+                <span className={`material-icons ${styles.chevron}`}>
+                  {openSection === 'fill' ? 'expand_less' : 'expand_more'}
+                </span>
+              </div>
+              {openSection === 'fill' && selectedShape.fill !== 'none' && (
+                <div className={styles.panelBody}>
+                  <ColorPicker
+                    color={selectedShape.fill || '#ffffff'}
+                    opacity={Number(selectedShape.fillOpacity ?? 1)}
+                    onChange={({ color, opacity }) =>
+                      updateShapeProperties(selectedShape.id, {
+                        fill: color,
+                        fillOpacity: opacity,
+                      })
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Texto Panel */}
+          {isTextAllowed && (
+            <div className={`${styles.panel} ${openSection === 'text' ? styles.panelOpen : ''}`}>
+              <div className={styles.panelHeader} onClick={() => toggleSection('text')}>
+                <div className={styles.headerLeft}>
+                  <span className="material-icons">title</span>
+                  <span className={styles.title}>Texto</span>
+                </div>
+                <span className={`material-icons ${styles.chevron}`}>
+                  {openSection === 'text' ? 'expand_less' : 'expand_more'}
+                </span>
+              </div>
+              {openSection === 'text' && (
+                <div className={styles.panelBody}>
+                  <ColorPicker
+                    color={selectedShape.color || '#000000'}
+                    opacity={Number(selectedShape.opacity ?? 1)}
+                    onChange={({ color, opacity }) =>
+                      updateShapeProperties(selectedShape.id, {
+                        color,
+                        opacity,
+                      })
+                    }
+                  />
+                  <div className={styles.sectionLabel}>Alineación Horizontal</div>
+                  <div className={styles.buttonGroup}>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'left' })}
+                      className={selectedShape.textAlign === 'left' ? styles.active : ''}
+                      title="Izquierda"
+                    >
+                      <span className="material-icons">format_align_left</span>
+                    </button>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'center' })}
+                      className={selectedShape.textAlign === 'center' ? styles.active : ''}
+                      title="Centro"
+                    >
+                      <span className="material-icons">format_align_center</span>
+                    </button>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'right' })}
+                      className={selectedShape.textAlign === 'right' ? styles.active : ''}
+                      title="Derecha"
+                    >
+                      <span className="material-icons">format_align_right</span>
+                    </button>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'justify' })}
+                      className={selectedShape.textAlign === 'justify' ? styles.active : ''}
+                      title="Justificado"
+                    >
+                      <span className="material-icons">format_align_justify</span>
+                    </button>
+                  </div>
+
+                  <div className={styles.sectionLabel}>Alineación Vertical</div>
+                  <div className={styles.buttonGroup}>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'top' })}
+                      className={selectedShape.verticalAlign === 'top' ? styles.active : ''}
+                      title="Arriba"
+                    >
+                      <span className="material-icons">vertical_align_top</span>
+                    </button>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'middle' })}
+                      className={selectedShape.verticalAlign === 'middle' ? styles.active : ''}
+                      title="Medio"
+                    >
+                      <span className="material-icons">vertical_align_center</span>
+                    </button>
+                    <button
+                      onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'bottom' })}
+                      className={selectedShape.verticalAlign === 'bottom' ? styles.active : ''}
+                      title="Abajo"
+                    >
+                      <span className="material-icons">vertical_align_bottom</span>
+                    </button>
+                  </div>
+
+                  <div className={styles.inputField}>
+                    <label>Tamaño de Fuente (px)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={selectedShape.fontSize || 12}
+                      onChange={(e) =>
+                        updateShapeProperties(selectedShape.id, {
+                          fontSize: Number(e.target.value),
+                        })
+                      }
+                    />
+                    <div className={styles.quickSizes}>
+                      {[12, 18, 24, 36, 50, 75].map((size) => (
+                        <button
+                          key={size}
+                          className={selectedShape.fontSize === size ? styles.activeSize : ''}
+                          onClick={() => updateShapeProperties(selectedShape.id, { fontSize: size })}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
