@@ -1,0 +1,362 @@
+/* ==========================================================================
+   Antigravity Whiteboard - Theme Variables & Color Scale System
+   Supports Light mode and Dark mode based on prefers-color-scheme & data-theme
+   ========================================================================== */
+
+:root,
+[data-theme='light'] {
+  /* --- Light Mode Palette Scale --- */
+  /* Gray Scale (100 = Lightest, 900 = Darkest) */
+  --color-gray-100: #f8f9fa;
+  --color-gray-200: #e9ecef;
+  --color-gray-300: #dee2e6;
+  --color-gray-400: #ced4da;
+  --color-gray-500: #adb5bd;
+  --color-gray-600: #6c757d;
+  --color-gray-700: #495057;
+  --color-gray-800: #343a40;
+  --color-gray-900: #1a1d20;
+
+  /* Blue Scale */
+  --color-blue-100: #e3f2fd;
+  --color-blue-200: #bbdefb;
+  --color-blue-300: #90caf9;
+  --color-blue-400: #64b5f6;
+  --color-blue-500: #2196f3;
+  --color-blue-600: #1e88e5;
+  --color-blue-700: #1976d2;
+  --color-blue-800: #1565c0;
+  --color-blue-900: #0d47a1;
+
+  /* Green Scale */
+  --color-green-100: #e8f5e9;
+  --color-green-200: #c8e6c9;
+  --color-green-300: #a5d6a7;
+  --color-green-400: #81c784;
+  --color-green-500: #4caf50;
+  --color-green-600: #43a047;
+  --color-green-700: #388e3c;
+  --color-green-800: #2e7d32;
+  --color-green-900: #1b5e20;
+
+  /* Red Scale */
+  --color-red-100: #ffebee;
+  --color-red-200: #ffcdd2;
+  --color-red-300: #ef9a9a;
+  --color-red-400: #e57373;
+  --color-red-500: #f44336;
+  --color-red-600: #e53935;
+  --color-red-700: #d32f2f;
+  --color-red-800: #c62828;
+  --color-red-900: #b71c1c;
+
+  /* Yellow Scale */
+  --color-yellow-100: #fffde7;
+  --color-yellow-200: #fff9c4;
+  --color-yellow-300: #fff59d;
+  --color-yellow-400: #fff176;
+  --color-yellow-500: #ffeb3b;
+  --color-yellow-600: #fdd835;
+  --color-yellow-700: #fbc02d;
+  --color-yellow-800: #f9a825;
+  --color-yellow-900: #f57f17;
+
+  /* Purple Scale */
+  --color-purple-100: #f3e5f5;
+  --color-purple-200: #e1bee7;
+  --color-purple-300: #ce93d8;
+  --color-purple-400: #ba68c8;
+  --color-purple-500: #9c27b0;
+  --color-purple-600: #8e24aa;
+  --color-purple-700: #7b1fa2;
+  --color-purple-800: #6a1b9a;
+  --color-purple-900: #4a148c;
+
+  /* Orange Scale */
+  --color-orange-100: #fbe9e7;
+  --color-orange-200: #ffccbc;
+  --color-orange-300: #ffab91;
+  --color-orange-400: #ff8a65;
+  --color-orange-500: #ff5722;
+  --color-orange-600: #f4511e;
+  --color-orange-700: #e64a19;
+  --color-orange-800: #d84315;
+  --color-orange-900: #bf360c;
+
+  /* Pink Scale */
+  --color-pink-100: #fce4ec;
+  --color-pink-200: #f8bbd0;
+  --color-pink-300: #f48fb1;
+  --color-pink-400: #f06292;
+  --color-pink-500: #e91e63;
+  --color-pink-600: #d81b60;
+  --color-pink-700: #c2185b;
+  --color-pink-800: #ad1457;
+  --color-pink-900: #880e4f;
+
+  /* --- Semantic Light Theme Variables --- */
+  --bg-canvas: #d5d9e0;
+  --bg-surface: rgba(255, 255, 255, 0.94);
+  --bg-surface-solid: #ffffff;
+  --bg-header: #f8f9fa;
+  --bg-hover: #e9ecef;
+  --bg-active: #e3f2fd;
+
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-color-strong: #dee2e6;
+  --border-color-focus: #2196f3;
+
+  --text-primary: #1a1d20;
+  --text-secondary: #6c757d;
+  --text-muted: #8d97a0;
+
+  --color-primary: #2196f3;
+  --color-primary-hover: #1e88e5;
+  --color-accent: #ff4081;
+
+  --btn-bg: #ffffff;
+  --btn-hover-bg: #f8f9fa;
+  --btn-shadow: 0px 2px 5px rgba(0, 0, 0, 0.18);
+  --btn-shadow-hover: 0px 4px 12px rgba(0, 0, 0, 0.22);
+  --panel-shadow: 0px 10px 30px rgba(0, 0, 0, 0.12), 0px 2px 8px rgba(0, 0, 0, 0.06);
+
+  --tooltip-bg: rgba(33, 37, 41, 0.92);
+  --tooltip-text: #ffffff;
+}
+
+/* ==========================================================================
+   Dark Mode Scale Inversion
+   Automatically enabled when system prefers dark theme or data-theme='dark'
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    /* --- Inverted Palette Scale --- */
+    /* Gray Scale (Inverted: 100 becomes dark, 900 becomes light) */
+    --color-gray-100: #1a1d20;
+    --color-gray-200: #25282d;
+    --color-gray-300: #343a40;
+    --color-gray-400: #495057;
+    --color-gray-500: #adb5bd;
+    --color-gray-600: #ced4da;
+    --color-gray-700: #dee2e6;
+    --color-gray-800: #e9ecef;
+    --color-gray-900: #f8f9fa;
+
+    /* Blue Scale (Inverted) */
+    --color-blue-100: #0d47a1;
+    --color-blue-200: #1565c0;
+    --color-blue-300: #1976d2;
+    --color-blue-400: #1e88e5;
+    --color-blue-500: #2196f3;
+    --color-blue-600: #64b5f6;
+    --color-blue-700: #90caf9;
+    --color-blue-800: #bbdefb;
+    --color-blue-900: #e3f2fd;
+
+    /* Green Scale (Inverted: Green 900 in light mode becomes light green in dark mode) */
+    --color-green-100: #1b5e20;
+    --color-green-200: #2e7d32;
+    --color-green-300: #388e3c;
+    --color-green-400: #43a047;
+    --color-green-500: #4caf50;
+    --color-green-600: #81c784;
+    --color-green-700: #a5d6a7;
+    --color-green-800: #c8e6c9;
+    --color-green-900: #e8f5e9;
+
+    /* Red Scale (Inverted) */
+    --color-red-100: #b71c1c;
+    --color-red-200: #c62828;
+    --color-red-300: #d32f2f;
+    --color-red-400: #e53935;
+    --color-red-500: #f44336;
+    --color-red-600: #e57373;
+    --color-red-700: #ef9a9a;
+    --color-red-800: #ffcdd2;
+    --color-red-900: #ffebee;
+
+    /* Yellow Scale (Inverted) */
+    --color-yellow-100: #f57f17;
+    --color-yellow-200: #f9a825;
+    --color-yellow-300: #fbc02d;
+    --color-yellow-400: #fdd835;
+    --color-yellow-500: #ffeb3b;
+    --color-yellow-600: #fff176;
+    --color-yellow-700: #fff59d;
+    --color-yellow-800: #fff9c4;
+    --color-yellow-900: #fffde7;
+
+    /* Purple Scale (Inverted) */
+    --color-purple-100: #4a148c;
+    --color-purple-200: #6a1b9a;
+    --color-purple-300: #7b1fa2;
+    --color-purple-400: #8e24aa;
+    --color-purple-500: #9c27b0;
+    --color-purple-600: #ba68c8;
+    --color-purple-700: #ce93d8;
+    --color-purple-800: #e1bee7;
+    --color-purple-900: #f3e5f5;
+
+    /* Orange Scale (Inverted) */
+    --color-orange-100: #bf360c;
+    --color-orange-200: #d84315;
+    --color-orange-300: #e64a19;
+    --color-orange-400: #f4511e;
+    --color-orange-500: #ff5722;
+    --color-orange-600: #ff8a65;
+    --color-orange-700: #ffab91;
+    --color-orange-800: #ffccbc;
+    --color-orange-900: #fbe9e7;
+
+    /* Pink Scale (Inverted) */
+    --color-pink-100: #880e4f;
+    --color-pink-200: #ad1457;
+    --color-pink-300: #c2185b;
+    --color-pink-400: #d81b60;
+    --color-pink-500: #e91e63;
+    --color-pink-600: #f06292;
+    --color-pink-700: #f48fb1;
+    --color-pink-800: #f8bbd0;
+    --color-pink-900: #fce4ec;
+
+    /* --- Semantic Dark Theme Variables --- */
+    --bg-canvas: #16181b;
+    --bg-surface: rgba(26, 29, 33, 0.94);
+    --bg-surface-solid: #212529;
+    --bg-header: #282c32;
+    --bg-hover: #343a40;
+    --bg-active: #153b60;
+
+    --border-color: rgba(255, 255, 255, 0.12);
+    --border-color-strong: #3e444c;
+    --border-color-focus: #42a5f5;
+
+    --text-primary: #f8f9fa;
+    --text-secondary: #ced4da;
+    --text-muted: #8d97a0;
+
+    --color-primary: #42a5f5;
+    --color-primary-hover: #64b5f6;
+    --color-accent: #ff4081;
+
+    --btn-bg: #282c32;
+    --btn-hover-bg: #343a40;
+    --btn-shadow: 0px 2px 6px rgba(0, 0, 0, 0.45);
+    --btn-shadow-hover: 0px 4px 14px rgba(0, 0, 0, 0.55);
+    --panel-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5), 0px 2px 8px rgba(0, 0, 0, 0.3);
+
+    --tooltip-bg: rgba(248, 249, 250, 0.95);
+    --tooltip-text: #1a1d20;
+  }
+}
+
+[data-theme='dark'] {
+  /* --- Explicit Dark Theme Override --- */
+  --color-gray-100: #1a1d20;
+  --color-gray-200: #25282d;
+  --color-gray-300: #343a40;
+  --color-gray-400: #495057;
+  --color-gray-500: #adb5bd;
+  --color-gray-600: #ced4da;
+  --color-gray-700: #dee2e6;
+  --color-gray-800: #e9ecef;
+  --color-gray-900: #f8f9fa;
+
+  --color-blue-100: #0d47a1;
+  --color-blue-200: #1565c0;
+  --color-blue-300: #1976d2;
+  --color-blue-400: #1e88e5;
+  --color-blue-500: #2196f3;
+  --color-blue-600: #64b5f6;
+  --color-blue-700: #90caf9;
+  --color-blue-800: #bbdefb;
+  --color-blue-900: #e3f2fd;
+
+  --color-green-100: #1b5e20;
+  --color-green-200: #2e7d32;
+  --color-green-300: #388e3c;
+  --color-green-400: #43a047;
+  --color-green-500: #4caf50;
+  --color-green-600: #81c784;
+  --color-green-700: #a5d6a7;
+  --color-green-800: #c8e6c9;
+  --color-green-900: #e8f5e9;
+
+  --color-red-100: #b71c1c;
+  --color-red-200: #c62828;
+  --color-red-300: #d32f2f;
+  --color-red-400: #e53935;
+  --color-red-500: #f44336;
+  --color-red-600: #e57373;
+  --color-red-700: #ef9a9a;
+  --color-red-800: #ffcdd2;
+  --color-red-900: #ffebee;
+
+  --color-yellow-100: #f57f17;
+  --color-yellow-200: #f9a825;
+  --color-yellow-300: #fbc02d;
+  --color-yellow-400: #fdd835;
+  --color-yellow-500: #ffeb3b;
+  --color-yellow-600: #fff176;
+  --color-yellow-700: #fff59d;
+  --color-yellow-800: #fff9c4;
+  --color-yellow-900: #fffde7;
+
+  --color-purple-100: #4a148c;
+  --color-purple-200: #6a1b9a;
+  --color-purple-300: #7b1fa2;
+  --color-purple-400: #8e24aa;
+  --color-purple-500: #9c27b0;
+  --color-purple-600: #ba68c8;
+  --color-purple-700: #ce93d8;
+  --color-purple-800: #e1bee7;
+  --color-purple-900: #f3e5f5;
+
+  --color-orange-100: #bf360c;
+  --color-orange-200: #d84315;
+  --color-orange-300: #e64a19;
+  --color-orange-400: #f4511e;
+  --color-orange-500: #ff5722;
+  --color-orange-600: #ff8a65;
+  --color-orange-700: #ffab91;
+  --color-orange-800: #ffccbc;
+  --color-orange-900: #fbe9e7;
+
+  --color-pink-100: #880e4f;
+  --color-pink-200: #ad1457;
+  --color-pink-300: #c2185b;
+  --color-pink-400: #d81b60;
+  --color-pink-500: #e91e63;
+  --color-pink-600: #f06292;
+  --color-pink-700: #f48fb1;
+  --color-pink-800: #f8bbd0;
+  --color-pink-900: #fce4ec;
+
+  --bg-canvas: #16181b;
+  --bg-surface: rgba(26, 29, 33, 0.94);
+  --bg-surface-solid: #212529;
+  --bg-header: #282c32;
+  --bg-hover: #343a40;
+  --bg-active: #153b60;
+
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-color-strong: #3e444c;
+  --border-color-focus: #42a5f5;
+
+  --text-primary: #f8f9fa;
+  --text-secondary: #ced4da;
+  --text-muted: #8d97a0;
+
+  --color-primary: #42a5f5;
+  --color-primary-hover: #64b5f6;
+  --color-accent: #ff4081;
+
+  --btn-bg: #282c32;
+  --btn-hover-bg: #343a40;
+  --btn-shadow: 0px 2px 6px rgba(0, 0, 0, 0.45);
+  --btn-shadow-hover: 0px 4px 14px rgba(0, 0, 0, 0.55);
+  --panel-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5), 0px 2px 8px rgba(0, 0, 0, 0.3);
+
+  --tooltip-bg: rgba(248, 249, 250, 0.95);
+  --tooltip-text: #1a1d20;
+}
