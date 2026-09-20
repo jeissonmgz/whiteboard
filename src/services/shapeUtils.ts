@@ -348,15 +348,89 @@ export function generateControlHandles(shape: ShapeData): ControlHandle[] {
     }
     case TypeShape.POLYLINE: {
       const bbox = getShapeBoundingBox(shape);
+      const { x, y, width, height } = bbox;
+      // Border container rectangle control
       handles.push({
         id: `${shape.id}-container`,
-        x: bbox.x,
-        y: bbox.y,
-        width: bbox.width,
-        height: bbox.height,
+        x,
+        y,
+        width,
+        height,
         editState: EditState.CENTER,
         cursor: 'move',
         type: 'rect',
+      });
+      // NW
+      handles.push({
+        id: `${shape.id}-nw`,
+        x,
+        y,
+        editState: EditState.NW_POINT,
+        cursor: 'nw-resize',
+        type: 'circle',
+      });
+      // NE
+      handles.push({
+        id: `${shape.id}-ne`,
+        x: x + width,
+        y,
+        editState: EditState.NE_POINT,
+        cursor: 'ne-resize',
+        type: 'circle',
+      });
+      // SW
+      handles.push({
+        id: `${shape.id}-sw`,
+        x,
+        y: y + height,
+        editState: EditState.SW_POINT,
+        cursor: 'sw-resize',
+        type: 'circle',
+      });
+      // SE
+      handles.push({
+        id: `${shape.id}-se`,
+        x: x + width,
+        y: y + height,
+        editState: EditState.SE_POINT,
+        cursor: 'se-resize',
+        type: 'circle',
+      });
+      // W
+      handles.push({
+        id: `${shape.id}-w`,
+        x,
+        y: y + height / 2,
+        editState: EditState.W_POINT,
+        cursor: 'w-resize',
+        type: 'circle',
+      });
+      // N
+      handles.push({
+        id: `${shape.id}-n`,
+        x: x + width / 2,
+        y,
+        editState: EditState.N_POINT,
+        cursor: 'n-resize',
+        type: 'circle',
+      });
+      // S
+      handles.push({
+        id: `${shape.id}-s`,
+        x: x + width / 2,
+        y: y + height,
+        editState: EditState.S_POINT,
+        cursor: 's-resize',
+        type: 'circle',
+      });
+      // E
+      handles.push({
+        id: `${shape.id}-e`,
+        x: x + width,
+        y: y + height / 2,
+        editState: EditState.E_POINT,
+        cursor: 'e-resize',
+        type: 'circle',
       });
       break;
     }
@@ -677,6 +751,7 @@ export function updateShapePoint(
 
     case TypeShape.POLYLINE: {
       const basePolyline = base as PolylineShape;
+
       if (editState === EditState.CENTER) {
         const dx = currentPoint.x - initPoint.x;
         const dy = currentPoint.y - initPoint.y;
@@ -693,9 +768,97 @@ export function updateShapePoint(
           points: shiftedPoints,
         };
       }
+
+      if (editState === EditState.DEFAULT) {
+        return {
+          ...shape,
+          points: shape.points + ` ${currentPoint.x},${currentPoint.y}`,
+        };
+      }
+
+      // Handle polyline handle resizing (NW, NE, SW, SE, N, S, E, W)
+      const baseBbox = getShapeBoundingBox(basePolyline);
+      const oldCenter = getShapeCenter(basePolyline);
+
+      let localAnchor: Point;
+      let resizeWidth = true;
+      let resizeHeight = true;
+
+      switch (editState) {
+        case EditState.NW_POINT:
+          localAnchor = { x: baseBbox.x + baseBbox.width, y: baseBbox.y + baseBbox.height };
+          break;
+        case EditState.NE_POINT:
+          localAnchor = { x: baseBbox.x, y: baseBbox.y + baseBbox.height };
+          break;
+        case EditState.SW_POINT:
+          localAnchor = { x: baseBbox.x + baseBbox.width, y: baseBbox.y };
+          break;
+        case EditState.SE_POINT:
+          localAnchor = { x: baseBbox.x, y: baseBbox.y };
+          break;
+        case EditState.W_POINT:
+          localAnchor = { x: baseBbox.x + baseBbox.width, y: baseBbox.y + baseBbox.height / 2 };
+          resizeHeight = false;
+          break;
+        case EditState.E_POINT:
+          localAnchor = { x: baseBbox.x, y: baseBbox.y + baseBbox.height / 2 };
+          resizeHeight = false;
+          break;
+        case EditState.N_POINT:
+          localAnchor = { x: baseBbox.x + baseBbox.width / 2, y: baseBbox.y + baseBbox.height };
+          resizeWidth = false;
+          break;
+        case EditState.S_POINT:
+          localAnchor = { x: baseBbox.x + baseBbox.width / 2, y: baseBbox.y };
+          resizeWidth = false;
+          break;
+        default:
+          localAnchor = { x: baseBbox.x, y: baseBbox.y };
+          break;
+      }
+
+      const anchorWorld = rotatePoint(localAnchor, oldCenter, rotation);
+      const localMouse = rotatePoint(currentPoint, oldCenter, -rotation);
+
+      let tempX = baseBbox.x;
+      let tempW = baseBbox.width;
+      let tempY = baseBbox.y;
+      let tempH = baseBbox.height;
+
+      if (resizeWidth) {
+        tempX = Math.min(localAnchor.x, localMouse.x);
+        tempW = Math.max(5, Math.abs(localAnchor.x - localMouse.x));
+      }
+      if (resizeHeight) {
+        tempY = Math.min(localAnchor.y, localMouse.y);
+        tempH = Math.max(5, Math.abs(localAnchor.y - localMouse.y));
+      }
+
+      const tempCenter = { x: tempX + tempW / 2, y: tempY + tempH / 2 };
+      const currentAnchorWorld = rotatePoint(localAnchor, tempCenter, rotation);
+      const shiftX = anchorWorld.x - currentAnchorWorld.x;
+      const shiftY = anchorWorld.y - currentAnchorWorld.y;
+
+      const origW = baseBbox.width === 0 ? 1 : baseBbox.width;
+      const origH = baseBbox.height === 0 ? 1 : baseBbox.height;
+
+      const scaledPoints = basePolyline.points
+        .trim()
+        .split(/\s+/)
+        .map((p) => {
+          const [px, py] = p.split(',').map(Number);
+          const normX = (px - baseBbox.x) / origW;
+          const normY = (py - baseBbox.y) / origH;
+          const newPx = tempX + (resizeWidth ? normX * tempW : (px - baseBbox.x)) + shiftX;
+          const newPy = tempY + (resizeHeight ? normY * tempH : (py - baseBbox.y)) + shiftY;
+          return `${newPx.toFixed(2)},${newPy.toFixed(2)}`;
+        })
+        .join(' ');
+
       return {
         ...shape,
-        points: shape.points + ` ${currentPoint.x},${currentPoint.y}`,
+        points: scaledPoints,
       };
     }
   }
