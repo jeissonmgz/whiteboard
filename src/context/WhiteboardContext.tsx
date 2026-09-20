@@ -1,14 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { ShapeData, TypeShape, EditState, Point } from '../types/shape';
 import { createNewShape, updateShapePoint, getShapeBoundingBox, updateGroupShapes, duplicateShape } from '../services/shapeUtils';
+import { useWhiteboardStore, ViewBoxState } from '../store/useWhiteboardStore';
 
-interface ViewBoxState {
-  x: number;
-  y: number;
-  zoom: number;
-  screenWidth: number;
-  screenHeight: number;
-}
+export type { ViewBoxState };
 
 interface WhiteboardContextType {
   shapes: ShapeData[];
@@ -69,7 +64,11 @@ function isShapeIntersectingRect(shape: ShapeData, mRect: { x: number; y: number
 }
 
 export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [shapes, setShapes] = useState<ShapeData[]>([]);
+  const shapes = useWhiteboardStore((state) => state.shapes);
+  const setShapes = useWhiteboardStore((state) => state.setShapes);
+  const viewBox = useWhiteboardStore((state) => state.viewBox);
+  const setViewBox = useWhiteboardStore((state) => state.setViewBox);
+
   const [selectedShapeIds, setSelectedShapeIds] = useState<string[]>([]);
   const [activeTool, setActiveTool] = useState<TypeShape | null>(null);
   const [marqueeRect, setMarqueeRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
@@ -80,15 +79,6 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // History stacks
   const [history, setHistory] = useState<ShapeData[][]>([]);
   const [redoStack, setRedoStack] = useState<ShapeData[][]>([]);
-
-  // ViewBox state
-  const [viewBox, setViewBox] = useState<ViewBoxState>({
-    x: 0,
-    y: 0,
-    zoom: 1,
-    screenWidth: typeof window !== 'undefined' ? window.innerWidth : 1000,
-    screenHeight: typeof window !== 'undefined' ? window.innerHeight : 800,
-  });
 
   // Dragging / Editing state refs
   const isEditingRef = useRef(false);
