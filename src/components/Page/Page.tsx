@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { TypeShape, Point, TextShape } from '../../types/shape';
 import { generateControlHandles } from '../../services/shapeUtils';
@@ -128,9 +128,16 @@ export const Page: React.FC = () => {
     handleMouseUp,
     updateShapeProperties,
     selectShape,
+    setPan,
   } = useWhiteboard();
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+
+  // Middle-click scroll wheel pan gesture state
+  const isPanningRef = useRef(false);
+  const panStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const initViewBoxRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
 
   // Resize listener
   useEffect(() => {
@@ -152,7 +159,22 @@ export const Page: React.FC = () => {
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    // Only handle primary mouse button or touch
+    // Middle click (scroll wheel press) triggers canvas pan gesture
+    if (e.button === 1) {
+      e.preventDefault();
+      isPanningRef.current = true;
+      setIsPanning(true);
+      panStartRef.current = { x: e.clientX, y: e.clientY };
+      initViewBoxRef.current = { x: viewBox.x, y: viewBox.y };
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch (err) {
+        // ignore
+      }
+      return;
+    }
+
+    // Only handle primary mouse button or touch for drawing/editing
     if (e.button !== 0) return;
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -164,11 +186,27 @@ export const Page: React.FC = () => {
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
+    if (isPanningRef.current) {
+      const dx = (e.clientX - panStartRef.current.x) * viewBox.zoom;
+      const dy = (e.clientY - panStartRef.current.y) * viewBox.zoom;
+      setPan(initViewBoxRef.current.x - dx, initViewBoxRef.current.y - dy);
+      return;
+    }
     const point = getCanvasPoint(e);
     handleMouseMove(point);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
+    if (isPanningRef.current) {
+      isPanningRef.current = false;
+      setIsPanning(false);
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch (err) {
+        // ignore
+      }
+      return;
+    }
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     } catch (err) {
@@ -178,25 +216,7 @@ export const Page: React.FC = () => {
     handleMouseUp(point, 100);
   };
 
-  const animRef = useRef<SVGAnimateElement | null>(null);
-  const prevViewBoxRef = useRef<string>('');
-
   const viewBoxString = `${viewBox.x} ${viewBox.y} ${viewBox.screenWidth * viewBox.zoom} ${viewBox.screenHeight * viewBox.zoom}`;
-
-  // SVG viewBox smooth transition animation
-  useEffect(() => {
-    if (prevViewBoxRef.current && prevViewBoxRef.current !== viewBoxString) {
-      if (animRef.current) {
-        animRef.current.setAttribute('values', `${prevViewBoxRef.current};${viewBoxString}`);
-        try {
-          animRef.current.beginElement();
-        } catch (e) {
-          // ignore
-        }
-      }
-    }
-    prevViewBoxRef.current = viewBoxString;
-  }, [viewBoxString]);
 
   const selectedShape = shapes.find((s) => s.id === selectedShapeId);
   const controlHandles = selectedShape ? generateControlHandles(selectedShape) : [];
@@ -209,6 +229,11 @@ export const Page: React.FC = () => {
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onMouseDown={(e) => {
+        if (e.button === 1) e.preventDefault();
+      }}
+      onAuxClick={(e) => e.preventDefault()}
+      style={{ cursor: isPanning ? 'grabbing' : undefined }}
     >
       <g id="canvas">
         {shapes.map((shape) => {
@@ -341,15 +366,6 @@ export const Page: React.FC = () => {
           );
         })}
       </g>
-      <animate
-        ref={animRef}
-        attributeName="viewBox"
-        begin="0s"
-        dur="0.4s"
-        calcMode="spline"
-        keySplines=".5 0 .5 1"
-        fill="freeze"
-      />
     </svg>
   );
 };

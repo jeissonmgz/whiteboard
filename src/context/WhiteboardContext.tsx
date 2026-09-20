@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { ShapeData, TypeShape, EditState, Point } from '../types/shape';
 import { createNewShape, updateShapePoint } from '../services/shapeUtils';
 
@@ -34,6 +34,7 @@ interface WhiteboardContextType {
   changeZoom: (zoomInOrValue: boolean | number) => void;
   updateScreenSize: (width: number, height: number) => void;
   centerAt: (targetX: number, targetY: number) => void;
+  setPan: (x: number, y: number) => void;
 
   // History
   undo: () => void;
@@ -238,50 +239,113 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     editingShapeIdRef.current = null;
   }, []);
 
-  // ViewBox & Scroll operations
-  const scroll = useCallback((isHorizontal: boolean, isTopOrLeft: boolean, value = 10) => {
-    const delta = value / 100;
-    setViewBox((prev) => {
-      const stepX = (isTopOrLeft ? -delta : delta) * prev.screenWidth;
-      const stepY = (isTopOrLeft ? -delta : delta) * prev.screenHeight;
-      return {
-        ...prev,
-        x: isHorizontal ? prev.x + stepX : prev.x,
-        y: !isHorizontal ? prev.y + stepY : prev.y,
-      };
-    });
+  // Ref tracking latest viewBox for animation math
+  const viewBoxRef = useRef(viewBox);
+  useEffect(() => {
+    viewBoxRef.current = viewBox;
+  }, [viewBox]);
+
+  const animFrameRef = useRef<number | null>(null);
+
+  const cancelViewBoxAnimation = useCallback(() => {
+    if (animFrameRef.current !== null) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
   }, []);
 
-  const changeZoom = useCallback((zoomInOrValue: boolean | number) => {
-    setViewBox((prev) => {
+  const animateViewBoxTo = useCallback(
+    (targetX: number, targetY: number, targetZoom?: number, duration = 300) => {
+      cancelViewBoxAnimation();
+
+      const startX = viewBoxRef.current.x;
+      const startY = viewBoxRef.current.y;
+      const startZoom = viewBoxRef.current.zoom;
+      const endZoom = targetZoom !== undefined ? targetZoom : startZoom;
+      const startTime = performance.now();
+
+      // Smooth cubic ease-out function
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+
+        setViewBox((prev) => ({
+          ...prev,
+          x: startX + (targetX - startX) * eased,
+          y: startY + (targetY - startY) * eased,
+          zoom: startZoom + (endZoom - startZoom) * eased,
+        }));
+
+        if (progress < 1) {
+          animFrameRef.current = requestAnimationFrame(step);
+        } else {
+          animFrameRef.current = null;
+        }
+      };
+
+      animFrameRef.current = requestAnimationFrame(step);
+    },
+    [cancelViewBoxAnimation]
+  );
+
+  // ViewBox & Scroll operations
+  const scroll = useCallback(
+    (isHorizontal: boolean, isTopOrLeft: boolean, value = 10) => {
+      const delta = value / 100;
+      const prev = viewBoxRef.current;
+      const stepX = (isTopOrLeft ? -delta : delta) * prev.screenWidth;
+      const stepY = (isTopOrLeft ? -delta : delta) * prev.screenHeight;
+      const targetX = isHorizontal ? prev.x + stepX : prev.x;
+      const targetY = !isHorizontal ? prev.y + stepY : prev.y;
+      animateViewBoxTo(targetX, targetY, prev.zoom, 250);
+    },
+    [animateViewBoxTo]
+  );
+
+  const changeZoom = useCallback(
+    (zoomInOrValue: boolean | number) => {
+      const prev = viewBoxRef.current;
       let newZoom = prev.zoom;
       if (typeof zoomInOrValue === 'number') {
-        if (zoomInOrValue === 100) {
-          newZoom = 1;
-        } else {
-          newZoom = zoomInOrValue;
-        }
+        newZoom = zoomInOrValue === 100 ? 1 : zoomInOrValue;
       } else if (zoomInOrValue) {
-        // Zoom out (increase scale of viewBox in original Angular logic) or zoom in
         newZoom = prev.zoom + 0.25;
       } else {
         if (prev.zoom > 0.25) newZoom = prev.zoom - 0.25;
       }
-      return { ...prev, zoom: newZoom };
-    });
-  }, []);
+      animateViewBoxTo(prev.x, prev.y, newZoom, 250);
+    },
+    [animateViewBoxTo]
+  );
 
   const updateScreenSize = useCallback((width: number, height: number) => {
     setViewBox((prev) => ({ ...prev, screenWidth: width, screenHeight: height }));
   }, []);
 
-  const centerAt = useCallback((targetX: number, targetY: number) => {
-    setViewBox((prev) => ({
-      ...prev,
-      x: targetX - (prev.screenWidth * prev.zoom) / 2,
-      y: targetY - (prev.screenHeight * prev.zoom) / 2,
-    }));
-  }, []);
+  const centerAt = useCallback(
+    (targetX: number, targetY: number) => {
+      const prev = viewBoxRef.current;
+      const finalX = targetX - (prev.screenWidth * prev.zoom) / 2;
+      const finalY = targetY - (prev.screenHeight * prev.zoom) / 2;
+      animateViewBoxTo(finalX, finalY, prev.zoom, 300);
+    },
+    [animateViewBoxTo]
+  );
+
+  const setPan = useCallback(
+    (x: number, y: number) => {
+      cancelViewBoxAnimation();
+      setViewBox((prev) => ({
+        ...prev,
+        x,
+        y,
+      }));
+    },
+    [cancelViewBoxAnimation]
+  );
 
   // History operations
   const undo = useCallback(() => {
@@ -322,6 +386,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         changeZoom,
         updateScreenSize,
         centerAt,
+        setPan,
         undo,
         redo,
       }}
