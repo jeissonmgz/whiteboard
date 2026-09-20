@@ -33,6 +33,7 @@ interface WhiteboardContextType {
   scroll: (isHorizontal: boolean, isTopOrLeft: boolean, value?: number) => void;
   changeZoom: (zoomInOrValue: boolean | number) => void;
   updateScreenSize: (width: number, height: number) => void;
+  centerAt: (targetX: number, targetY: number) => void;
 
   // History
   undo: () => void;
@@ -274,6 +275,14 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setViewBox((prev) => ({ ...prev, screenWidth: width, screenHeight: height }));
   }, []);
 
+  const centerAt = useCallback((targetX: number, targetY: number) => {
+    setViewBox((prev) => ({
+      ...prev,
+      x: targetX - (prev.screenWidth * prev.zoom) / 2,
+      y: targetY - (prev.screenHeight * prev.zoom) / 2,
+    }));
+  }, []);
+
   // History operations
   const undo = useCallback(() => {
     if (history.length === 0) return;
@@ -312,6 +321,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         scroll,
         changeZoom,
         updateScreenSize,
+        centerAt,
         undo,
         redo,
       }}

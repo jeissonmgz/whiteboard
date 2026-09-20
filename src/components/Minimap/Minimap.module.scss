@@ -1,0 +1,64 @@
+.minimapContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.18);
+  z-index: 120;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease-in-out;
+}
+
+.minimapHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+
+  .title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #555555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .toggleBtn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 4px;
+
+    &:hover {
+      background: #e0e0e0;
+    }
+
+    span {
+      font-size: 16px;
+      color: #666666;
+    }
+  }
+}
+
+.canvasWrapper {
+  width: 100%;
+  height: 130px;
+  background: #eef1f5;
+  cursor: crosshair;
+  position: relative;
+}
+
+.minimapSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

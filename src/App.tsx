@@ -4,6 +4,7 @@ import { Page } from './components/Page/Page';
 import { Scroll } from './components/Scroll/Scroll';
 import { Property } from './components/Property/Property';
 import { Control } from './components/Control/Control';
+import { Minimap } from './components/Minimap/Minimap';
 import './App.scss';
 
 export const App: React.FC = () => {
@@ -14,6 +15,7 @@ export const App: React.FC = () => {
       <div className="content" role="main">
         <Property />
         <Control />
+        <Minimap />
       </div>
     </WhiteboardProvider>
   );

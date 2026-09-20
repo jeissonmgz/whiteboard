@@ -178,7 +178,25 @@ export const Page: React.FC = () => {
     handleMouseUp(point, 100);
   };
 
+  const animRef = useRef<SVGAnimateElement | null>(null);
+  const prevViewBoxRef = useRef<string>('');
+
   const viewBoxString = `${viewBox.x} ${viewBox.y} ${viewBox.screenWidth * viewBox.zoom} ${viewBox.screenHeight * viewBox.zoom}`;
+
+  // SVG viewBox smooth transition animation
+  useEffect(() => {
+    if (prevViewBoxRef.current && prevViewBoxRef.current !== viewBoxString) {
+      if (animRef.current) {
+        animRef.current.setAttribute('values', `${prevViewBoxRef.current};${viewBoxString}`);
+        try {
+          animRef.current.beginElement();
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+    prevViewBoxRef.current = viewBoxString;
+  }, [viewBoxString]);
 
   const selectedShape = shapes.find((s) => s.id === selectedShapeId);
   const controlHandles = selectedShape ? generateControlHandles(selectedShape) : [];
@@ -323,6 +341,15 @@ export const Page: React.FC = () => {
           );
         })}
       </g>
+      <animate
+        ref={animRef}
+        attributeName="viewBox"
+        begin="0s"
+        dur="0.4s"
+        calcMode="spline"
+        keySplines=".5 0 .5 1"
+        fill="freeze"
+      />
     </svg>
   );
 };
