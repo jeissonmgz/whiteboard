@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { CircleButton } from '../CircleButton/CircleButton';
 import { useI18n } from '../../i18n/I18nContext';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import styles from './ThemeToggle.module.scss';
 
 export const ThemeToggle: React.FC = () => {
-  const [themeMode, setThemeMode] = useState<'system' | 'dark' | 'light'>('system');
+  const themeMode = useSettingsStore((state) => state.themeMode);
+  const setThemeMode = useSettingsStore((state) => state.setThemeMode);
   const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('light');
   const { t } = useI18n();
 

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Language, LANGUAGES, LanguageOption, translations, detectBrowserLanguage } from './translations';
+import React, { createContext, useContext } from 'react';
+import { Language, LANGUAGES, LanguageOption, translations } from './translations';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 interface I18nContextType {
   language: Language;
@@ -11,24 +12,8 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('es');
-
-  useEffect(() => {
-    const saved = localStorage.getItem('app_language') as Language | null;
-    if (saved && translations[saved]) {
-      setLanguageState(saved);
-    } else {
-      const detected = detectBrowserLanguage();
-      setLanguageState(detected);
-    }
-  }, []);
-
-  const setLanguage = (lang: Language) => {
-    if (translations[lang]) {
-      setLanguageState(lang);
-      localStorage.setItem('app_language', lang);
-    }
-  };
+  const language = useSettingsStore((state) => state.language);
+  const setLanguage = useSettingsStore((state) => state.setLanguage);
 
   const t = (key: string): string => {
     return translations[language]?.[key] || translations['es']?.[key] || key;
