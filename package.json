@@ -12,11 +12,13 @@
   "dependencies": {
     "@parcel/watcher": "^2.6.0",
     "esbuild": "^0.25.12",
-    "fsevents": "^2.3.3",
     "lucide-react": "^0.460.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zustand": "^5.0.15"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
