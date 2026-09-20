@@ -116,6 +116,33 @@ const TextItem: React.FC<TextItemProps> = ({
   );
 };
 
+const renderArrowHead = (
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  strokeColor: string,
+  strokeWidth: number,
+  opacity: number
+) => {
+  const angle = Math.atan2(toY - fromY, toX - fromX);
+  const headLength = Math.max(Number(strokeWidth) * 3 + 8, 14);
+  const arrowAngle = Math.PI / 6;
+
+  const p1X = toX - headLength * Math.cos(angle - arrowAngle);
+  const p1Y = toY - headLength * Math.sin(angle - arrowAngle);
+  const p2X = toX - headLength * Math.cos(angle + arrowAngle);
+  const p2Y = toY - headLength * Math.sin(angle + arrowAngle);
+
+  return (
+    <polygon
+      points={`${toX},${toY} ${p1X},${p1Y} ${p2X},${p2Y}`}
+      fill={strokeColor}
+      opacity={opacity}
+    />
+  );
+};
+
 export const Page: React.FC = () => {
   const {
     shapes,
@@ -298,6 +325,7 @@ export const Page: React.FC = () => {
                 />
               );
             case TypeShape.LINE:
+            case TypeShape.ARROW:
               return (
                 <g key={shape.id} data-shape-id={shape.id} style={{ cursor: activeTool === null ? 'move' : 'default' }}>
                   {/* Thick transparent hit area for easy grabbing */}
@@ -307,7 +335,7 @@ export const Page: React.FC = () => {
                     x2={shape.x2}
                     y2={shape.y2}
                     stroke="transparent"
-                    strokeWidth={Math.max(Number(shape.strokeWidth || 1), 14)}
+                    strokeWidth={Math.max(Number(shape.strokeWidth || 1), 16)}
                   />
                   <line
                     x1={shape.x1}
@@ -318,6 +346,26 @@ export const Page: React.FC = () => {
                     strokeWidth={shape.strokeWidth ?? 1}
                     strokeOpacity={shape.strokeOpacity ?? 1}
                   />
+                  {shape.markerEnd &&
+                    renderArrowHead(
+                      shape.x1,
+                      shape.y1,
+                      shape.x2,
+                      shape.y2,
+                      shape.stroke || 'black',
+                      Number(shape.strokeWidth || 1),
+                      Number(shape.strokeOpacity ?? 1)
+                    )}
+                  {shape.markerStart &&
+                    renderArrowHead(
+                      shape.x2,
+                      shape.y2,
+                      shape.x1,
+                      shape.y1,
+                      shape.stroke || 'black',
+                      Number(shape.strokeWidth || 1),
+                      Number(shape.strokeOpacity ?? 1)
+                    )}
                 </g>
               );
             case TypeShape.POLYLINE:

@@ -10,6 +10,7 @@ export enum TypeShape {
   POLYLINE = 'polyline',
   RECT = 'rect',
   TEXT = 'foreignObject',
+  ARROW = 'arrow',
 }
 
 export enum EditState {
@@ -44,6 +45,8 @@ export interface BaseShape {
   opacity?: string | number;
   textAlign?: string;
   verticalAlign?: string;
+  markerStart?: boolean;
+  markerEnd?: boolean;
 }
 
 export interface RectShape extends BaseShape {
@@ -70,6 +73,14 @@ export interface LineShape extends BaseShape {
   y2: number;
 }
 
+export interface ArrowShape extends BaseShape {
+  type: TypeShape.ARROW;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
 export interface PolylineShape extends BaseShape {
   type: TypeShape.POLYLINE;
   points: string;
@@ -84,7 +95,13 @@ export interface TextShape extends BaseShape {
   content: string;
 }
 
-export type ShapeData = RectShape | EllipseShape | LineShape | PolylineShape | TextShape;
+export type ShapeData =
+  | RectShape
+  | EllipseShape
+  | LineShape
+  | ArrowShape
+  | PolylineShape
+  | TextShape;
 
 export interface ControlHandle {
   id: string;

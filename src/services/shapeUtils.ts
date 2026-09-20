@@ -7,6 +7,7 @@ import {
   RectShape,
   EllipseShape,
   LineShape,
+  ArrowShape,
   PolylineShape,
   TextShape,
   Point,
@@ -18,6 +19,7 @@ export function getPropertiesAllowed(typeShape: TypeShape): PropertyAllowed[] {
     case TypeShape.ELLIPSE:
       return [PropertyAllowed.background, PropertyAllowed.line];
     case TypeShape.LINE:
+    case TypeShape.ARROW:
     case TypeShape.POLYLINE:
       return [PropertyAllowed.line];
     case TypeShape.TEXT:
@@ -212,7 +214,8 @@ export function generateControlHandles(shape: ShapeData): ControlHandle[] {
       });
       break;
     }
-    case TypeShape.LINE: {
+    case TypeShape.LINE:
+    case TypeShape.ARROW: {
       const { x1, y1, x2, y2 } = shape;
       handles.push({
         id: `${shape.id}-p1`,
@@ -279,6 +282,17 @@ export function createNewShape(type: TypeShape, startPoint: Point): ShapeData {
         y1: startPoint.y,
         x2: startPoint.x,
         y2: startPoint.y,
+      };
+    case TypeShape.ARROW:
+      return {
+        ...commonProps,
+        type: TypeShape.ARROW,
+        x1: startPoint.x,
+        y1: startPoint.y,
+        x2: startPoint.x,
+        y2: startPoint.y,
+        markerStart: false,
+        markerEnd: true, // Arrowhead at endpoint by default
       };
     case TypeShape.POLYLINE:
       return {
@@ -386,8 +400,9 @@ export function updateShapePoint(
       }
       return { ...shape, cx: newCx, cy: newCy, rx: newRx, ry: newRy };
     }
-    case TypeShape.LINE: {
-      const baseLine = base as LineShape;
+    case TypeShape.LINE:
+    case TypeShape.ARROW: {
+      const baseLine = base as LineShape | ArrowShape;
       if (editState === EditState.CENTER) {
         return {
           ...shape,

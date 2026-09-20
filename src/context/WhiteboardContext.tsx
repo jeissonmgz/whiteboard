@@ -465,6 +465,10 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           case 'L':
             handleToolChange(TypeShape.LINE);
             break;
+          case 'a':
+          case 'A':
+            handleToolChange(TypeShape.ARROW);
+            break;
           case 'p':
           case 'P':
             handleToolChange(TypeShape.POLYLINE);

@@ -50,6 +50,12 @@ export const Control: React.FC = () => {
         onClick={() => setActiveTool(TypeShape.LINE)}
       />
       <CircleButton
+        icon="east"
+        info="Flecha (A)"
+        isSelected={activeTool === TypeShape.ARROW}
+        onClick={() => setActiveTool(TypeShape.ARROW)}
+      />
+      <CircleButton
         icon="show_chart"
         info="Polilínea (P)"
         isSelected={activeTool === TypeShape.POLYLINE}

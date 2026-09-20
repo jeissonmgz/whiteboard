@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
-import { PropertyAllowed } from '../../types/shape';
+import { PropertyAllowed, TypeShape } from '../../types/shape';
 import { getPropertiesAllowed } from '../../services/shapeUtils';
 import styles from './Property.module.scss';
 
@@ -204,6 +204,35 @@ export const Property: React.FC = () => {
                       }
                     />
                   </div>
+                  {(selectedShape.type === TypeShape.LINE || selectedShape.type === TypeShape.ARROW) && (
+                    <div className={styles.arrowheadControls}>
+                      <div className={styles.sectionLabel}>Extremos con flecha</div>
+                      <label className={styles.checkboxOption}>
+                        <input
+                          type="checkbox"
+                          checked={!!selectedShape.markerStart}
+                          onChange={(e) =>
+                            updateShapeProperties(selectedShape.id, {
+                              markerStart: e.target.checked,
+                            })
+                          }
+                        />
+                        <span>Flecha al inicio</span>
+                      </label>
+                      <label className={styles.checkboxOption}>
+                        <input
+                          type="checkbox"
+                          checked={!!selectedShape.markerEnd}
+                          onChange={(e) =>
+                            updateShapeProperties(selectedShape.id, {
+                              markerEnd: e.target.checked,
+                            })
+                          }
+                        />
+                        <span>Flecha al final</span>
+                      </label>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
