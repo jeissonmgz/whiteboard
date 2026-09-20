@@ -114,13 +114,13 @@ export const Property: React.FC = () => {
 
   const handleStrokeToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateShapeProperties(selectedShape.id, {
-      stroke: e.target.checked ? '#000000' : 'none',
+      stroke: e.target.checked ? 'var(--text-primary)' : 'none',
     });
   };
 
   const handleFillToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateShapeProperties(selectedShape.id, {
-      fill: e.target.checked ? '#ffffff' : 'none',
+      fill: e.target.checked ? 'var(--bg-surface-solid)' : 'none',
     });
   };
 

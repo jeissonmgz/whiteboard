@@ -64,7 +64,7 @@ export class LineStrategy implements ShapeStrategy<LineShape> {
       y1: startPoint.y,
       x2: startPoint.x,
       y2: startPoint.y,
-      stroke: 'black',
+      stroke: 'var(--text-primary)',
       fill: 'none',
       strokeWidth: 1,
       strokeOpacity: 1,

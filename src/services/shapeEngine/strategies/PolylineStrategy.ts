@@ -54,7 +54,7 @@ export class PolylineStrategy implements ShapeStrategy<PolylineShape> {
       id,
       type: TypeShape.POLYLINE,
       points: `${startPoint.x},${startPoint.y}`,
-      stroke: 'black',
+      stroke: 'var(--text-primary)',
       fill: 'none',
       strokeWidth: 1,
       strokeOpacity: 1,
