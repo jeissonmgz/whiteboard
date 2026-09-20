@@ -209,7 +209,7 @@ export const Page: React.FC = () => {
                   strokeWidth={shape.strokeWidth ?? 1}
                   strokeOpacity={shape.strokeOpacity ?? 1}
                   fillOpacity={shape.fillOpacity ?? 1}
-                  style={{ pointerEvents: 'all' }}
+                  style={{ cursor: activeTool === null ? 'move' : 'default', pointerEvents: 'all' }}
                 />
               );
             case TypeShape.ELLIPSE:
@@ -226,12 +226,12 @@ export const Page: React.FC = () => {
                   strokeWidth={shape.strokeWidth ?? 1}
                   strokeOpacity={shape.strokeOpacity ?? 1}
                   fillOpacity={shape.fillOpacity ?? 1}
-                  style={{ pointerEvents: 'all' }}
+                  style={{ cursor: activeTool === null ? 'move' : 'default', pointerEvents: 'all' }}
                 />
               );
             case TypeShape.LINE:
               return (
-                <g key={shape.id} data-shape-id={shape.id}>
+                <g key={shape.id} data-shape-id={shape.id} style={{ cursor: activeTool === null ? 'move' : 'default' }}>
                   {/* Thick transparent hit area for easy grabbing */}
                   <line
                     x1={shape.x1}
@@ -254,7 +254,7 @@ export const Page: React.FC = () => {
               );
             case TypeShape.POLYLINE:
               return (
-                <g key={shape.id} data-shape-id={shape.id}>
+                <g key={shape.id} data-shape-id={shape.id} style={{ cursor: activeTool === null ? 'move' : 'default' }}>
                   {/* Thick transparent hit area for easy grabbing */}
                   <polyline
                     points={shape.points}

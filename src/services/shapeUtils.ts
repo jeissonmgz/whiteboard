@@ -44,17 +44,8 @@ export function generateControlHandles(shape: ShapeData): ControlHandle[] {
         width,
         height,
         editState: EditState.CENTER,
-        cursor: 'pointer',
-        type: 'rect',
-      });
-      // Center
-      handles.push({
-        id: `${shape.id}-center`,
-        x: x + width / 2,
-        y: y + height / 2,
-        editState: EditState.CENTER,
         cursor: 'move',
-        type: 'circle',
+        type: 'rect',
       });
       // NW
       handles.push({
@@ -144,17 +135,8 @@ export function generateControlHandles(shape: ShapeData): ControlHandle[] {
         width,
         height,
         editState: EditState.CENTER,
-        cursor: 'pointer',
-        type: 'rect',
-      });
-      // Center
-      handles.push({
-        id: `${shape.id}-center`,
-        x: cx,
-        y: cy,
-        editState: EditState.CENTER,
         cursor: 'move',
-        type: 'circle',
+        type: 'rect',
       });
       // NW
       handles.push({
@@ -245,14 +227,6 @@ export function generateControlHandles(shape: ShapeData): ControlHandle[] {
         x: x2,
         y: y2,
         editState: EditState.DEFAULT,
-        cursor: 'move',
-        type: 'circle',
-      });
-      handles.push({
-        id: `${shape.id}-mid`,
-        x: (x1 + x2) / 2,
-        y: (y1 + y2) / 2,
-        editState: EditState.CENTER,
         cursor: 'move',
         type: 'circle',
       });

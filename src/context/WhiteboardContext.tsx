@@ -167,6 +167,15 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
         if (clickedShapeId) {
           setSelectedShapeId(clickedShapeId);
+          const targetShape = shapes.find((s) => s.id === clickedShapeId);
+          initialShapeRef.current = targetShape ? JSON.parse(JSON.stringify(targetShape)) : null;
+
+          // Immediately enable shape dragging when clicking shape body
+          isEditingRef.current = true;
+          editingShapeIdRef.current = clickedShapeId;
+          editStateRef.current = EditState.CENTER;
+          initPointRef.current = { ...point };
+          lastPointRef.current = { ...point };
         } else {
           setSelectedShapeId(null);
         }
