@@ -25,6 +25,7 @@ export enum EditState {
   SW_POINT = 8,
   FIRST_POINT = 9,
   DEFAULT = 10,
+  ROTATE = 11,
 }
 
 export interface Point {
@@ -47,6 +48,7 @@ export interface BaseShape {
   verticalAlign?: string;
   markerStart?: boolean;
   markerEnd?: boolean;
+  rotation?: number;
 }
 
 export interface RectShape extends BaseShape {
@@ -112,6 +114,7 @@ export interface ControlHandle {
   type: 'circle' | 'rect';
   width?: number;
   height?: number;
+  stemY?: number;
 }
 
 export interface PropertyState {

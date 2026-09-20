@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
-import { TypeShape, Point, TextShape } from '../../types/shape';
-import { generateControlHandles } from '../../services/shapeUtils';
+import { TypeShape, Point, TextShape, EditState } from '../../types/shape';
+import { generateControlHandles, getShapeCenter } from '../../services/shapeUtils';
 import styles from './Page.module.scss';
 
 interface TextItemProps {
@@ -272,6 +272,7 @@ export const Page: React.FC = () => {
 
   const selectedShape = shapes.find((s) => s.id === selectedShapeId);
   const controlHandles = selectedShape ? generateControlHandles(selectedShape) : [];
+  const selectedCenter = selectedShape ? getShapeCenter(selectedShape) : null;
 
   return (
     <svg
@@ -289,6 +290,11 @@ export const Page: React.FC = () => {
     >
       <g id="canvas">
         {shapes.map((shape) => {
+          const center = getShapeCenter(shape);
+          const transformStr = shape.rotation
+            ? `rotate(${shape.rotation}, ${center.x}, ${center.y})`
+            : undefined;
+
           switch (shape.type) {
             case TypeShape.RECT:
               return (
@@ -304,6 +310,7 @@ export const Page: React.FC = () => {
                   strokeWidth={shape.strokeWidth ?? 1}
                   strokeOpacity={shape.strokeOpacity ?? 1}
                   fillOpacity={shape.fillOpacity ?? 1}
+                  transform={transformStr}
                   style={{ cursor: activeTool === null ? 'move' : 'default', pointerEvents: 'all' }}
                 />
               );
@@ -321,13 +328,19 @@ export const Page: React.FC = () => {
                   strokeWidth={shape.strokeWidth ?? 1}
                   strokeOpacity={shape.strokeOpacity ?? 1}
                   fillOpacity={shape.fillOpacity ?? 1}
+                  transform={transformStr}
                   style={{ cursor: activeTool === null ? 'move' : 'default', pointerEvents: 'all' }}
                 />
               );
             case TypeShape.LINE:
             case TypeShape.ARROW:
               return (
-                <g key={shape.id} data-shape-id={shape.id} style={{ cursor: activeTool === null ? 'move' : 'default' }}>
+                <g
+                  key={shape.id}
+                  data-shape-id={shape.id}
+                  transform={transformStr}
+                  style={{ cursor: activeTool === null ? 'move' : 'default' }}
+                >
                   {/* Thick transparent hit area for easy grabbing */}
                   <line
                     x1={shape.x1}
@@ -370,7 +383,12 @@ export const Page: React.FC = () => {
               );
             case TypeShape.POLYLINE:
               return (
-                <g key={shape.id} data-shape-id={shape.id} style={{ cursor: activeTool === null ? 'move' : 'default' }}>
+                <g
+                  key={shape.id}
+                  data-shape-id={shape.id}
+                  transform={transformStr}
+                  style={{ cursor: activeTool === null ? 'move' : 'default' }}
+                >
                   {/* Thick transparent hit area for easy grabbing */}
                   <polyline
                     points={shape.points}
@@ -389,15 +407,16 @@ export const Page: React.FC = () => {
               );
             case TypeShape.TEXT:
               return (
-                <TextItem
-                  key={shape.id}
-                  shape={shape}
-                  isSelected={shape.id === selectedShapeId}
-                  onSelect={selectShape}
-                  onUpdateContent={(id, content) =>
-                    updateShapeProperties(id, { content })
-                  }
-                />
+                <g key={shape.id} transform={transformStr}>
+                  <TextItem
+                    shape={shape}
+                    isSelected={shape.id === selectedShapeId}
+                    onSelect={selectShape}
+                    onUpdateContent={(id, content) =>
+                      updateShapeProperties(id, { content })
+                    }
+                  />
+                </g>
               );
             default:
               return null;
@@ -406,38 +425,95 @@ export const Page: React.FC = () => {
       </g>
 
       <g id="controls">
-        {controlHandles.map((handle) => {
-          if (handle.type === 'rect') {
-            return (
-              <rect
-                key={handle.id}
-                data-secondary="true"
-                data-state={handle.editState}
-                x={handle.x}
-                y={handle.y}
-                width={handle.width}
-                height={handle.height}
-                stroke="#2196f3"
-                strokeWidth="5"
-                fill="none"
-                style={{ cursor: handle.cursor }}
-              />
-            );
-          }
-          return (
-            <circle
-              key={handle.id}
-              data-secondary="true"
-              data-state={handle.editState}
-              cx={handle.x}
-              cy={handle.y}
-              r="7"
-              fill="#2196f3"
-              stroke="none"
-              style={{ cursor: handle.cursor }}
-            />
-          );
-        })}
+        {selectedShape && selectedCenter && (
+          <g
+            transform={
+              selectedShape.rotation
+                ? `rotate(${selectedShape.rotation}, ${selectedCenter.x}, ${selectedCenter.y})`
+                : undefined
+            }
+          >
+            {controlHandles.map((handle) => {
+              if (handle.editState === EditState.ROTATE) {
+                return (
+                  <g key={handle.id}>
+                    {handle.stemY !== undefined && (
+                      <line
+                        x1={handle.x}
+                        y1={handle.stemY}
+                        x2={handle.x}
+                        y2={handle.y}
+                        stroke="#2196f3"
+                        strokeWidth="1.5"
+                        strokeDasharray="3 3"
+                      />
+                    )}
+                    <circle
+                      data-secondary="true"
+                      data-state={handle.editState}
+                      cx={handle.x}
+                      cy={handle.y}
+                      r="9"
+                      fill="#4caf50"
+                      stroke="#ffffff"
+                      strokeWidth="2"
+                      style={{ cursor: handle.cursor }}
+                    />
+                    <path
+                      data-secondary="true"
+                      data-state={handle.editState}
+                      d={`M ${handle.x - 4} ${handle.y - 1} A 4 4 0 1 1 ${handle.x + 4} ${handle.y - 1}`}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                    <polygon
+                      data-secondary="true"
+                      data-state={handle.editState}
+                      points={`${handle.x + 4},${handle.y - 4} ${handle.x + 6},${handle.y - 1} ${handle.x + 2},${handle.y - 1}`}
+                      fill="#ffffff"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  </g>
+                );
+              }
+              if (handle.type === 'rect') {
+                return (
+                  <rect
+                    key={handle.id}
+                    data-secondary="true"
+                    data-state={handle.editState}
+                    x={handle.x}
+                    y={handle.y}
+                    width={handle.width}
+                    height={handle.height}
+                    stroke="#2196f3"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    fill="none"
+                    style={{ cursor: handle.cursor }}
+                  />
+                );
+              }
+              return (
+                <circle
+                  key={handle.id}
+                  data-secondary="true"
+                  data-state={handle.editState}
+                  cx={handle.x}
+                  cy={handle.y}
+                  r="7"
+                  fill="#2196f3"
+                  stroke="#ffffff"
+                  strokeWidth="1.5"
+                  style={{ cursor: handle.cursor }}
+                />
+              );
+            })}
+          </g>
+        )}
       </g>
     </svg>
   );
