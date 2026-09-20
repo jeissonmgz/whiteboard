@@ -2,14 +2,64 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Whiteboard Infinite Scroll (React 19)</title>
-    <!-- Material Icons & Roboto font for aesthetic parity -->
+    <title>Whiteboard Infinite Canvas | Pizarra Interactiva Online</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Meta Tags Primarios SEO -->
+    <meta name="title" content="Whiteboard Infinite Canvas | Pizarra Interactiva Online" />
+    <meta name="description" content="Pizarra interactiva de lienzo infinito en tiempo real. Herramienta online gratuita para diagramación, bocetos vectoriales, formas, texto, modos claro/oscuro y soporte multilingüe." />
+    <meta name="keywords" content="whiteboard, pizarra digital, lienzo infinito, diagramas, dibujo vectorial, react 19, diagrama de flujo, whiteboard online" />
+    <meta name="author" content="Whiteboard App" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#4f46e5" />
+
+    <!-- Open Graph / Facebook / Social Cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Whiteboard Infinite Canvas | Pizarra Interactiva Online" />
+    <meta property="og:description" content="Pizarra interactiva de lienzo infinito en tiempo real. Herramienta gratuita para diagramación, bocetos vectoriales y esquemas." />
+    <meta property="og:site_name" content="Whiteboard Infinite Canvas" />
+    <meta property="og:locale" content="es_ES" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Whiteboard Infinite Canvas | Pizarra Interactiva Online" />
+    <meta name="twitter:description" content="Pizarra interactiva de lienzo infinito en tiempo real. Herramienta gratuita para diagramación, bocetos vectoriales y esquemas." />
+
+    <!-- Optimización de Rendimiento (Preconnect para Fuentes Google) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Datos Estructurados JSON-LD (Schema.org WebApplication) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Whiteboard Infinite Canvas",
+        "alternateName": ["Whiteboard", "Pizarra Online"],
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Herramienta de pizarra interactiva de lienzo infinito para diagramación, bocetos y diseño vectorial con soporte multilingüe.",
+        "browserRequirements": "Requires JavaScript. Requires HTML5."
+      }
+    </script>
   </head>
   <body>
+    <!-- Fallback SEO para crawlers o navegadores sin JS -->
+    <noscript>
+      <div style="padding: 20px; font-family: Roboto, sans-serif;">
+        <h1>Whiteboard Infinite Canvas - Pizarra Interactiva Online</h1>
+        <p>Esta aplicación requiere JavaScript habilitado para funcionar. Es una herramienta de lienzo infinito para dibujo, diagramación y diseño vectorial.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

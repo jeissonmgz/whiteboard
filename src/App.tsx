@@ -6,6 +6,7 @@ import { Scroll } from './components/Scroll/Scroll';
 import { Property } from './components/Property/Property';
 import { Control } from './components/Control/Control';
 import { Minimap } from './components/Minimap/Minimap';
+import { HeaderBrand } from './components/HeaderBrand/HeaderBrand';
 import { ThemeToggle } from './components/ThemeToggle/ThemeToggle';
 import { LanguageSelector } from './components/LanguageSelector/LanguageSelector';
 import './App.scss';
@@ -17,6 +18,7 @@ export const App: React.FC = () => {
         <Page />
         <Scroll />
         <div className="content" role="main">
+          <HeaderBrand />
           <LanguageSelector />
           <ThemeToggle />
           <Property />
