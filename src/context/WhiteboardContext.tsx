@@ -31,7 +31,13 @@ interface WhiteboardContextType {
 
   // ViewBox & Scroll controls
   scroll: (isHorizontal: boolean, isTopOrLeft: boolean, value?: number) => void;
-  changeZoom: (zoomInOrValue: boolean | number) => void;
+  changeZoom: (zoomInOrValue: boolean | number, clientPoint?: { x: number; y: number } | null) => void;
+  zoomAtPoint: (
+    clientPoint: { x: number; y: number } | null,
+    zoomInOrValue: boolean | number,
+    animate?: boolean,
+    deltaFactor?: number
+  ) => void;
   updateScreenSize: (width: number, height: number) => void;
   centerAt: (targetX: number, targetY: number) => void;
   setPan: (x: number, y: number) => void;
@@ -305,20 +311,60 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [animateViewBoxTo]
   );
 
-  const changeZoom = useCallback(
-    (zoomInOrValue: boolean | number) => {
+  const zoomAtPoint = useCallback(
+    (
+      clientPoint: { x: number; y: number } | null,
+      zoomInOrValue: boolean | number,
+      animate = true,
+      deltaFactor?: number
+    ) => {
       const prev = viewBoxRef.current;
+
+      // Default focal point: center of screen if no clientPoint provided (e.g. from toolbar buttons)
+      const targetPoint = clientPoint || {
+        x: prev.screenWidth / 2,
+        y: prev.screenHeight / 2,
+      };
+
       let newZoom = prev.zoom;
       if (typeof zoomInOrValue === 'number') {
         newZoom = zoomInOrValue === 100 ? 1 : zoomInOrValue;
+      } else if (deltaFactor !== undefined) {
+        // Continuous wheel / trackpad pinch zoom
+        const factor = deltaFactor < 0 ? 0.92 : 1.08;
+        newZoom = Math.min(Math.max(prev.zoom * factor, 0.1), 5.0);
       } else if (zoomInOrValue) {
-        newZoom = prev.zoom + 0.25;
+        // Zoom In button: decrease zoom scale factor to zoom in
+        newZoom = Math.max(prev.zoom - 0.25, 0.1);
       } else {
-        if (prev.zoom > 0.25) newZoom = prev.zoom - 0.25;
+        // Zoom Out button: increase zoom scale factor to zoom out
+        newZoom = Math.min(prev.zoom + 0.25, 5.0);
       }
-      animateViewBoxTo(prev.x, prev.y, newZoom, 250);
+
+      // Calculate new viewBox origin (x, y) so targetPoint stays fixed on screen
+      const newX = prev.x + targetPoint.x * (prev.zoom - newZoom);
+      const newY = prev.y + targetPoint.y * (prev.zoom - newZoom);
+
+      if (animate) {
+        animateViewBoxTo(newX, newY, newZoom, 200);
+      } else {
+        cancelViewBoxAnimation();
+        setViewBox((p) => ({
+          ...p,
+          x: newX,
+          y: newY,
+          zoom: newZoom,
+        }));
+      }
     },
-    [animateViewBoxTo]
+    [animateViewBoxTo, cancelViewBoxAnimation]
+  );
+
+  const changeZoom = useCallback(
+    (zoomInOrValue: boolean | number, clientPoint?: { x: number; y: number } | null) => {
+      zoomAtPoint(clientPoint || null, zoomInOrValue, true);
+    },
+    [zoomAtPoint]
   );
 
   const updateScreenSize = useCallback((width: number, height: number) => {
@@ -384,6 +430,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         handleMouseUp,
         scroll,
         changeZoom,
+        zoomAtPoint,
         updateScreenSize,
         centerAt,
         setPan,

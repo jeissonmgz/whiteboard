@@ -129,6 +129,7 @@ export const Page: React.FC = () => {
     updateShapeProperties,
     selectShape,
     setPan,
+    zoomAtPoint,
   } = useWhiteboard();
 
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -148,6 +149,30 @@ export const Page: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [updateScreenSize]);
+
+  // Ctrl + Scroll wheel pointer-centered zoom listener
+  useEffect(() => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const rect = svgEl.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
+
+        // e.deltaY < 0 is scroll up (zoom in), e.deltaY > 0 is scroll down (zoom out)
+        const zoomIn = e.deltaY < 0;
+        zoomAtPoint({ x: cursorX, y: cursorY }, zoomIn, false, e.deltaY);
+      }
+    };
+
+    svgEl.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      svgEl.removeEventListener('wheel', handleWheel);
+    };
+  }, [zoomAtPoint]);
 
   const getCanvasPoint = (e: React.PointerEvent): Point => {
     if (!svgRef.current) return { x: 0, y: 0 };
