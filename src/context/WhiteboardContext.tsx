@@ -27,6 +27,10 @@ interface WhiteboardContextType {
   updateShapeProperties: (id: string, updates: Partial<ShapeData>, skipHistory?: boolean) => void;
   deleteShape: (id: string) => void;
   duplicateSelectedShapes: () => void;
+  bringToFront: () => void;
+  bringForward: () => void;
+  sendBackward: () => void;
+  sendToBack: () => void;
 
 
   // Drawing & Editing lifecycle
@@ -152,6 +156,59 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       return [...prevShapes, ...newClones];
     });
   }, [selectedShapeIds, saveHistory]);
+
+  const bringToFront = useCallback(() => {
+    if (selectedShapeIds.length === 0) return;
+    setShapes((prevShapes) => {
+      saveHistory(prevShapes);
+      const selected = prevShapes.filter((s) => selectedShapeIds.includes(s.id));
+      const unselected = prevShapes.filter((s) => !selectedShapeIds.includes(s.id));
+      return [...unselected, ...selected];
+    });
+  }, [selectedShapeIds, saveHistory]);
+
+  const sendToBack = useCallback(() => {
+    if (selectedShapeIds.length === 0) return;
+    setShapes((prevShapes) => {
+      saveHistory(prevShapes);
+      const selected = prevShapes.filter((s) => selectedShapeIds.includes(s.id));
+      const unselected = prevShapes.filter((s) => !selectedShapeIds.includes(s.id));
+      return [...selected, ...unselected];
+    });
+  }, [selectedShapeIds, saveHistory]);
+
+  const bringForward = useCallback(() => {
+    if (selectedShapeIds.length === 0) return;
+    setShapes((prevShapes) => {
+      saveHistory(prevShapes);
+      const newShapes = [...prevShapes];
+      for (let i = newShapes.length - 2; i >= 0; i--) {
+        if (selectedShapeIds.includes(newShapes[i].id) && !selectedShapeIds.includes(newShapes[i + 1].id)) {
+          const temp = newShapes[i];
+          newShapes[i] = newShapes[i + 1];
+          newShapes[i + 1] = temp;
+        }
+      }
+      return newShapes;
+    });
+  }, [selectedShapeIds, saveHistory]);
+
+  const sendBackward = useCallback(() => {
+    if (selectedShapeIds.length === 0) return;
+    setShapes((prevShapes) => {
+      saveHistory(prevShapes);
+      const newShapes = [...prevShapes];
+      for (let i = 1; i < newShapes.length; i++) {
+        if (selectedShapeIds.includes(newShapes[i].id) && !selectedShapeIds.includes(newShapes[i - 1].id)) {
+          const temp = newShapes[i];
+          newShapes[i] = newShapes[i - 1];
+          newShapes[i - 1] = temp;
+        }
+      }
+      return newShapes;
+    });
+  }, [selectedShapeIds, saveHistory]);
+
 
 
   const snapshotInitialShapes = useCallback((shapeList: ShapeData[]) => {
@@ -514,6 +571,20 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         } else if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           duplicateSelectedShapes();
+        } else if (e.key === ']') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            bringToFront();
+          } else {
+            bringForward();
+          }
+        } else if (e.key === '[') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            sendToBack();
+          } else {
+            sendBackward();
+          }
         }
       } else {
         // Single key shortcuts when Ctrl/Cmd is not pressed
@@ -576,7 +647,19 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedShapeIds, deleteShape, duplicateSelectedShapes, handleToolChange, scroll]);
+  }, [
+    undo,
+    redo,
+    selectedShapeIds,
+    deleteShape,
+    duplicateSelectedShapes,
+    bringToFront,
+    bringForward,
+    sendBackward,
+    sendToBack,
+    handleToolChange,
+    scroll,
+  ]);
 
   return (
     <WhiteboardContext.Provider
@@ -595,6 +678,10 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateShapeProperties,
         deleteShape,
         duplicateSelectedShapes,
+        bringToFront,
+        bringForward,
+        sendBackward,
+        sendToBack,
         startDrawingOrEditing,
         handleMouseMove,
         handleMouseUp,

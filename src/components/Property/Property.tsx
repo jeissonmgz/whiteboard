@@ -6,10 +6,18 @@ import { getPropertiesAllowed } from '../../services/shapeUtils';
 import styles from './Property.module.scss';
 
 export const Property: React.FC = () => {
-  const { shapes, selectedShapeId, updateShapeProperties } = useWhiteboard();
+  const {
+    shapes,
+    selectedShapeId,
+    updateShapeProperties,
+    bringToFront,
+    bringForward,
+    sendBackward,
+    sendToBack,
+  } = useWhiteboard();
 
   // Accordion state - default stroke open
-  const [openSection, setOpenSection] = useState<'stroke' | 'fill' | 'text' | null>('stroke');
+  const [openSection, setOpenSection] = useState<'stroke' | 'fill' | 'text' | 'layer' | null>('stroke');
 
   // Minimize / Collapse state
   const [collapsed, setCollapsed] = useState(false);
@@ -108,7 +116,7 @@ export const Property: React.FC = () => {
   const isFillAllowed = allowedProperties.includes(PropertyAllowed.background);
   const isTextAllowed = allowedProperties.includes(PropertyAllowed.text);
 
-  const toggleSection = (section: 'stroke' | 'fill' | 'text') => {
+  const toggleSection = (section: 'stroke' | 'fill' | 'text' | 'layer') => {
     setOpenSection(openSection === section ? null : section);
   };
 
@@ -397,6 +405,53 @@ export const Property: React.FC = () => {
               )}
             </div>
           )}
+
+          {/* Capa / Orden Panel */}
+          <div className={`${styles.panel} ${openSection === 'layer' ? styles.panelOpen : ''}`}>
+            <div className={styles.panelHeader} onClick={() => toggleSection('layer')}>
+              <div className={styles.headerLeft}>
+                <span className="material-icons">layers</span>
+                <span className={styles.title}>Capa / Orden</span>
+              </div>
+              <span className={`material-icons ${styles.chevron}`}>
+                {openSection === 'layer' ? 'expand_less' : 'expand_more'}
+              </span>
+            </div>
+            {openSection === 'layer' && (
+              <div className={styles.panelBody}>
+                <div className={styles.buttonGroup}>
+                  <button
+                    type="button"
+                    onClick={bringToFront}
+                    title="Traer al frente (⌘⇧])"
+                  >
+                    <span className="material-icons">flip_to_front</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={bringForward}
+                    title="Traer adelante (⌘])"
+                  >
+                    <span className="material-icons">arrow_upward</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={sendBackward}
+                    title="Enviar atrás (⌘[)"
+                  >
+                    <span className="material-icons">arrow_downward</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={sendToBack}
+                    title="Enviar al fondo (⌘⇧[)"
+                  >
+                    <span className="material-icons">flip_to_back</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
