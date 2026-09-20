@@ -136,7 +136,7 @@
   visibility: visible;
 }
 
-// 1. Default (Above button)
+// 1. Default / Above (for standard buttons or float bottom button)
 .tooltip_default,
 .tooltip_bottom {
   bottom: calc(100% + 9px);
@@ -156,8 +156,9 @@
   transform: translateX(-50%) translateY(0);
 }
 
-// 2. Top float button (Below button)
-.tooltip_top {
+// 2. Top float button / Below (Below button, centered)
+.tooltip_top,
+.tooltip_below {
   top: calc(100% + 9px);
   left: 50%;
   transform: translateX(-50%) translateY(-4px);
@@ -170,11 +171,52 @@
   }
 }
 
-.buttonWrapper:hover .tooltip_top {
+.buttonWrapper:hover .tooltip_top,
+.buttonWrapper:hover .tooltip_below {
   transform: translateX(-50%) translateY(0);
 }
 
-// 3. Left float button (Right of button)
+// 3. Bottom-Left (Below button, right-aligned to button wrapper, extending left)
+.tooltip_bottom_left {
+  top: calc(100% + 9px);
+  right: 0;
+  left: auto;
+  transform: translateY(-4px);
+
+  &::after {
+    bottom: 100%;
+    right: 14px;
+    left: auto;
+    transform: none;
+    border-color: transparent transparent var(--tooltip-bg) transparent;
+  }
+}
+
+.buttonWrapper:hover .tooltip_bottom_left {
+  transform: translateY(0);
+}
+
+// 4. Bottom-Right (Below button, left-aligned to button wrapper, extending right)
+.tooltip_bottom_right {
+  top: calc(100% + 9px);
+  left: 0;
+  right: auto;
+  transform: translateY(-4px);
+
+  &::after {
+    bottom: 100%;
+    left: 14px;
+    right: auto;
+    transform: none;
+    border-color: transparent transparent var(--tooltip-bg) transparent;
+  }
+}
+
+.buttonWrapper:hover .tooltip_bottom_right {
+  transform: translateY(0);
+}
+
+// 5. Left float button (Right of button)
 .tooltip_left {
   left: calc(100% + 9px);
   top: 50%;
@@ -192,7 +234,7 @@
   transform: translateY(-50%) translateX(0);
 }
 
-// 4. Right float button (Left of button)
+// 6. Right float button (Left of button)
 .tooltip_right {
   right: calc(100% + 9px);
   top: 50%;
@@ -209,4 +251,5 @@
 .buttonWrapper:hover .tooltip_right {
   transform: translateY(-50%) translateX(0);
 }
+
 

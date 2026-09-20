@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
+import { useI18n } from '../../i18n/I18nContext';
 import { ColorPicker } from '../ColorPicker/ColorPicker';
 import { PropertyAllowed, TypeShape } from '../../types/shape';
 import { getPropertiesAllowed } from '../../services/shapeUtils';
@@ -15,6 +16,8 @@ export const Property: React.FC = () => {
     sendBackward,
     sendToBack,
   } = useWhiteboard();
+
+  const { t } = useI18n();
 
   // Accordion state - default stroke open
   const [openSection, setOpenSection] = useState<'stroke' | 'fill' | 'text' | 'layer' | null>('stroke');
@@ -150,7 +153,7 @@ export const Property: React.FC = () => {
       >
         <div className={styles.headerTitle}>
           <span className="material-icons">tune</span>
-          <span className={styles.mainTitle}>Propiedades</span>
+          <span className={styles.mainTitle}>{t('propertiesTitle')}</span>
         </div>
         <button
           className={styles.toggleBtn}
@@ -158,7 +161,7 @@ export const Property: React.FC = () => {
             e.stopPropagation();
             setCollapsed(!collapsed);
           }}
-          title={collapsed ? 'Expandir propiedades' : 'Minimizar propiedades'}
+          title={collapsed ? t('expandProperties') : t('collapseProperties')}
         >
           <span className="material-icons">
             {collapsed ? 'unfold_more' : 'unfold_less'}
@@ -178,10 +181,10 @@ export const Property: React.FC = () => {
                     checked={selectedShape.stroke !== 'none'}
                     onChange={handleStrokeToggle}
                     onClick={(e) => e.stopPropagation()}
-                    title="Habilitar Contorno"
+                    title={t('stroke')}
                   />
                   <span className="material-icons">crop_square</span>
-                  <span className={styles.title}>Contorno</span>
+                  <span className={styles.title}>{t('stroke')}</span>
                 </div>
                 <span className={`material-icons ${styles.chevron}`}>
                   {openSection === 'stroke' ? 'expand_less' : 'expand_more'}
@@ -201,7 +204,7 @@ export const Property: React.FC = () => {
                     }
                   />
                   <div className={styles.inputField}>
-                    <label>Grosor de borde (px)</label>
+                    <label>{t('strokeWidth')}</label>
                     <input
                       type="number"
                       min="1"
@@ -227,7 +230,7 @@ export const Property: React.FC = () => {
                   </div>
                   {(selectedShape.type === TypeShape.LINE || selectedShape.type === TypeShape.ARROW) && (
                     <div className={styles.arrowheadControls}>
-                      <div className={styles.sectionLabel}>Extremos con flecha</div>
+                      <div className={styles.sectionLabel}>{t('arrowEnds')}</div>
                       <label className={styles.checkboxOption}>
                         <input
                           type="checkbox"
@@ -238,7 +241,7 @@ export const Property: React.FC = () => {
                             })
                           }
                         />
-                        <span>Flecha al inicio</span>
+                        <span>{t('arrowStart')}</span>
                       </label>
                       <label className={styles.checkboxOption}>
                         <input
@@ -250,7 +253,7 @@ export const Property: React.FC = () => {
                             })
                           }
                         />
-                        <span>Flecha al final</span>
+                        <span>{t('arrowEnd')}</span>
                       </label>
                     </div>
                   )}
@@ -269,10 +272,10 @@ export const Property: React.FC = () => {
                     checked={selectedShape.fill !== 'none'}
                     onChange={handleFillToggle}
                     onClick={(e) => e.stopPropagation()}
-                    title="Habilitar Relleno"
+                    title={t('fill')}
                   />
                   <span className="material-icons">format_paint</span>
-                  <span className={styles.title}>Relleno</span>
+                  <span className={styles.title}>{t('fill')}</span>
                 </div>
                 <span className={`material-icons ${styles.chevron}`}>
                   {openSection === 'fill' ? 'expand_less' : 'expand_more'}
@@ -302,7 +305,7 @@ export const Property: React.FC = () => {
               <div className={styles.panelHeader} onClick={() => toggleSection('text')}>
                 <div className={styles.headerLeft}>
                   <span className="material-icons">title</span>
-                  <span className={styles.title}>Texto</span>
+                  <span className={styles.title}>{t('text')}</span>
                 </div>
                 <span className={`material-icons ${styles.chevron}`}>
                   {openSection === 'text' ? 'expand_less' : 'expand_more'}
@@ -311,7 +314,7 @@ export const Property: React.FC = () => {
               {openSection === 'text' && (
                 <div className={styles.panelBody}>
                   <ColorPicker
-                    color={selectedShape.color || '#000000'}
+                    color={selectedShape.color || 'var(--text-primary)'}
                     opacity={Number(selectedShape.opacity ?? 1)}
                     onChange={({ color, opacity }) =>
                       updateShapeProperties(selectedShape.id, {
@@ -320,65 +323,72 @@ export const Property: React.FC = () => {
                       })
                     }
                   />
-                  <div className={styles.sectionLabel}>Alineación Horizontal</div>
+                  <div className={styles.sectionLabel}>{t('textAlignHorizontal')}</div>
                   <div className={styles.buttonGroup}>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'left' })}
                       className={selectedShape.textAlign === 'left' ? styles.active : ''}
-                      title="Izquierda"
+                      title={t('left')}
                     >
                       <span className="material-icons">format_align_left</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'center' })}
                       className={selectedShape.textAlign === 'center' ? styles.active : ''}
-                      title="Centro"
+                      title={t('center')}
                     >
                       <span className="material-icons">format_align_center</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'right' })}
                       className={selectedShape.textAlign === 'right' ? styles.active : ''}
-                      title="Derecha"
+                      title={t('right')}
                     >
                       <span className="material-icons">format_align_right</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { textAlign: 'justify' })}
                       className={selectedShape.textAlign === 'justify' ? styles.active : ''}
-                      title="Justificado"
+                      title={t('justify')}
                     >
                       <span className="material-icons">format_align_justify</span>
                     </button>
                   </div>
 
-                  <div className={styles.sectionLabel}>Alineación Vertical</div>
+                  <div className={styles.sectionLabel}>{t('textAlignVertical')}</div>
                   <div className={styles.buttonGroup}>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'top' })}
                       className={selectedShape.verticalAlign === 'top' ? styles.active : ''}
-                      title="Arriba"
+                      title={t('top')}
                     >
                       <span className="material-icons">vertical_align_top</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'middle' })}
                       className={selectedShape.verticalAlign === 'middle' ? styles.active : ''}
-                      title="Medio"
+                      title={t('middle')}
                     >
                       <span className="material-icons">vertical_align_center</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => updateShapeProperties(selectedShape.id, { verticalAlign: 'bottom' })}
                       className={selectedShape.verticalAlign === 'bottom' ? styles.active : ''}
-                      title="Abajo"
+                      title={t('bottom')}
                     >
                       <span className="material-icons">vertical_align_bottom</span>
                     </button>
                   </div>
 
                   <div className={styles.inputField}>
-                    <label>Tamaño de Fuente (px)</label>
+                    <label>{t('fontSize')}</label>
                     <input
                       type="number"
                       min="1"
@@ -393,6 +403,7 @@ export const Property: React.FC = () => {
                       {[12, 18, 24, 36, 50, 75].map((size) => (
                         <button
                           key={size}
+                          type="button"
                           className={selectedShape.fontSize === size ? styles.activeSize : ''}
                           onClick={() => updateShapeProperties(selectedShape.id, { fontSize: size })}
                         >
@@ -411,7 +422,7 @@ export const Property: React.FC = () => {
             <div className={styles.panelHeader} onClick={() => toggleSection('layer')}>
               <div className={styles.headerLeft}>
                 <span className="material-icons">layers</span>
-                <span className={styles.title}>Capa / Orden</span>
+                <span className={styles.title}>{t('layerOrder')}</span>
               </div>
               <span className={`material-icons ${styles.chevron}`}>
                 {openSection === 'layer' ? 'expand_less' : 'expand_more'}
@@ -423,28 +434,28 @@ export const Property: React.FC = () => {
                   <button
                     type="button"
                     onClick={bringToFront}
-                    title="Traer al frente (⌘⇧])"
+                    title={t('bringToFront')}
                   >
                     <span className="material-icons">flip_to_front</span>
                   </button>
                   <button
                     type="button"
                     onClick={bringForward}
-                    title="Traer adelante (⌘])"
+                    title={t('bringForward')}
                   >
                     <span className="material-icons">arrow_upward</span>
                   </button>
                   <button
                     type="button"
                     onClick={sendBackward}
-                    title="Enviar atrás (⌘[)"
+                    title={t('sendBackward')}
                   >
                     <span className="material-icons">arrow_downward</span>
                   </button>
                   <button
                     type="button"
                     onClick={sendToBack}
-                    title="Enviar al fondo (⌘⇧[)"
+                    title={t('sendToBack')}
                   >
                     <span className="material-icons">flip_to_back</span>
                   </button>

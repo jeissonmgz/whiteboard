@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { CircleButton } from '../CircleButton/CircleButton';
+import { useI18n } from '../../i18n/I18nContext';
 import styles from './ThemeToggle.module.scss';
 
 export const ThemeToggle: React.FC = () => {
   const [themeMode, setThemeMode] = useState<'system' | 'dark' | 'light'>('system');
   const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('light');
+  const { t } = useI18n();
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -41,7 +43,8 @@ export const ThemeToggle: React.FC = () => {
     <div className={styles.themeToggleWrapper}>
       <CircleButton
         icon={isDark ? 'light_mode' : 'dark_mode'}
-        info={isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+        info={isDark ? t('themeLight') : t('themeDark')}
+        position="bottom-left"
         onClick={toggleTheme}
       />
     </div>

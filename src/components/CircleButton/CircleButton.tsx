@@ -45,9 +45,8 @@ export const CircleButton: React.FC<CircleButtonProps> = ({
     ? `${styles.buttonWrapper} ${styles.floatWrapper} ${styles[position] || ''}`
     : styles.buttonWrapper;
 
-  const tooltipPositionClass = isFloat
-    ? styles[`tooltip_${position}`] || styles.tooltip_default
-    : styles.tooltip_default;
+  const tooltipKey = position ? position.replace('-', '_') : 'default';
+  const tooltipPositionClass = styles[`tooltip_${tooltipKey}`] || styles.tooltip_default;
 
   return (
     <div className={wrapperClassName}>
