@@ -9,8 +9,9 @@ import {
 import { ShapeEngineFactory } from './shapeEngine/ShapeEngineFactory';
 import { BoundingBox } from './shapeEngine/types';
 import { rotatePoint } from './shapeEngine/utils/mathUtils';
+import { getGroupBoundingBox, generateGroupControlHandles, updateGroupShapes } from './shapeEngine/utils/groupUtils';
 
-export { rotatePoint };
+export { rotatePoint, getGroupBoundingBox, generateGroupControlHandles, updateGroupShapes };
 
 export function getPropertiesAllowed(typeShape: TypeShape): PropertyAllowed[] {
   const strategy = ShapeEngineFactory.getStrategy(typeShape);

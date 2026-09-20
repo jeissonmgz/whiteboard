@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { ShapeData, TypeShape, EditState, Point } from '../types/shape';
-import { createNewShape, updateShapePoint } from '../services/shapeUtils';
+import { createNewShape, updateShapePoint, getShapeBoundingBox, updateGroupShapes } from '../services/shapeUtils';
 
 interface ViewBoxState {
   x: number;
@@ -13,14 +13,17 @@ interface ViewBoxState {
 interface WhiteboardContextType {
   shapes: ShapeData[];
   selectedShapeId: string | null;
+  selectedShapeIds: string[];
   activeTool: TypeShape | null;
   viewBox: ViewBoxState;
+  marqueeRect: { x: number; y: number; width: number; height: number } | null;
   canUndo: boolean;
   canRedo: boolean;
 
   // Actions
   setActiveTool: (tool: TypeShape | null) => void;
   selectShape: (id: string | null) => void;
+  selectShapes: (ids: string[]) => void;
   updateShapeProperties: (id: string, updates: Partial<ShapeData>) => void;
   deleteShape: (id: string) => void;
 
@@ -49,10 +52,24 @@ interface WhiteboardContextType {
 
 const WhiteboardContext = createContext<WhiteboardContextType | undefined>(undefined);
 
+function isShapeIntersectingRect(shape: ShapeData, mRect: { x: number; y: number; width: number; height: number }): boolean {
+  const bbox = getShapeBoundingBox(shape);
+  return !(
+    bbox.x > mRect.x + mRect.width ||
+    bbox.x + bbox.width < mRect.x ||
+    bbox.y > mRect.y + mRect.height ||
+    bbox.y + bbox.height < mRect.y
+  );
+}
+
 export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [shapes, setShapes] = useState<ShapeData[]>([]);
-  const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+  const [selectedShapeIds, setSelectedShapeIds] = useState<string[]>([]);
   const [activeTool, setActiveTool] = useState<TypeShape | null>(null);
+  const [marqueeRect, setMarqueeRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
+  // Derived primary selected ID for single selection backward compatibility
+  const selectedShapeId = selectedShapeIds.length > 0 ? selectedShapeIds[0] : null;
 
   // History stacks
   const [history, setHistory] = useState<ShapeData[][]>([]);
@@ -69,11 +86,12 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Dragging / Editing state refs
   const isEditingRef = useRef(false);
-  const editingShapeIdRef = useRef<string | null>(null);
+  const isMarqueeRef = useRef(false);
   const editStateRef = useRef<EditState>(EditState.DEFAULT);
   const initPointRef = useRef<Point>({ x: 0, y: 0 });
   const lastPointRef = useRef<Point>({ x: 0, y: 0 });
   const initialShapeRef = useRef<ShapeData | null>(null);
+  const initialShapesMapRef = useRef<Map<string, ShapeData>>(new Map());
   const startClickTimeRef = useRef<number>(0);
 
   const saveHistory = useCallback((currentShapes: ShapeData[]) => {
@@ -82,36 +100,48 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const selectShape = useCallback((id: string | null) => {
-    setSelectedShapeId(id);
+    setSelectedShapeIds(id ? [id] : []);
+  }, []);
+
+  const selectShapes = useCallback((ids: string[]) => {
+    setSelectedShapeIds(ids);
   }, []);
 
   const handleToolChange = useCallback((tool: TypeShape | null) => {
     setActiveTool(tool);
-    setSelectedShapeId(null);
+    setSelectedShapeIds([]);
   }, []);
 
   const updateShapeProperties = useCallback(
     (id: string, updates: Partial<ShapeData>) => {
       setShapes((prevShapes) => {
         saveHistory(prevShapes);
+        const targetIds = selectedShapeIds.includes(id) ? selectedShapeIds : [id];
         return prevShapes.map((shape) =>
-          shape.id === id ? ({ ...shape, ...updates } as ShapeData) : shape
+          targetIds.includes(shape.id) ? ({ ...shape, ...updates } as ShapeData) : shape
         );
       });
     },
-    [saveHistory]
+    [saveHistory, selectedShapeIds]
   );
 
   const deleteShape = useCallback(
     (id: string) => {
       setShapes((prevShapes) => {
         saveHistory(prevShapes);
-        return prevShapes.filter((shape) => shape.id !== id);
+        const targetIds = selectedShapeIds.includes(id) ? selectedShapeIds : [id];
+        return prevShapes.filter((shape) => !targetIds.includes(shape.id));
       });
-      setSelectedShapeId(null);
+      setSelectedShapeIds([]);
     },
-    [saveHistory]
+    [saveHistory, selectedShapeIds]
   );
+
+  const snapshotInitialShapes = useCallback((shapeList: ShapeData[]) => {
+    const map = new Map<string, ShapeData>();
+    shapeList.forEach((s) => map.set(s.id, JSON.parse(JSON.stringify(s))));
+    initialShapesMapRef.current = map;
+  }, []);
 
   const startDrawingOrEditing = useCallback(
     (point: Point, targetElement?: Element) => {
@@ -122,58 +152,21 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const secAttribute = secElement?.getAttribute('data-secondary');
       const stateAttribute = secElement?.getAttribute('data-state');
 
-      if (secAttribute === 'true' && stateAttribute !== null && selectedShapeId) {
-        // Editing existing selected shape via handle
+      if (secAttribute === 'true' && stateAttribute !== null && selectedShapeIds.length > 0) {
+        // Editing existing selected shape(s) via handle
         saveHistory(shapes);
+        snapshotInitialShapes(shapes);
         const editState = Number(stateAttribute) as EditState;
         editStateRef.current = editState;
         isEditingRef.current = true;
-        editingShapeIdRef.current = selectedShapeId;
 
-        const targetShape = shapes.find((s) => s.id === selectedShapeId);
-        if (targetShape) {
-          initialShapeRef.current = JSON.parse(JSON.stringify(targetShape));
-          // Compute initPoint according to handle position
-          switch (targetShape.type) {
-            case TypeShape.RECT:
-            case TypeShape.TEXT: {
-              if (
-                editState === EditState.N_POINT ||
-                editState === EditState.NW_POINT ||
-                editState === EditState.W_POINT
-              ) {
-                initPointRef.current = {
-                  x: targetShape.x + targetShape.width,
-                  y: targetShape.y + targetShape.height,
-                };
-              } else if (editState === EditState.NE_POINT) {
-                initPointRef.current = {
-                  x: targetShape.x,
-                  y: targetShape.y + targetShape.height,
-                };
-              } else if (editState === EditState.SW_POINT) {
-                initPointRef.current = {
-                  x: targetShape.x + targetShape.width,
-                  y: targetShape.y,
-                };
-              } else {
-                initPointRef.current = { x: targetShape.x, y: targetShape.y };
-              }
-              break;
-            }
-            case TypeShape.ELLIPSE: {
-              initPointRef.current = { x: targetShape.cx, y: targetShape.cy };
-              break;
-            }
-            case TypeShape.LINE: {
-              initPointRef.current = {
-                x: (targetShape.x1 + targetShape.x2) / 2,
-                y: (targetShape.y1 + targetShape.y2) / 2,
-              };
-              break;
-            }
+        if (selectedShapeIds.length === 1) {
+          const targetShape = shapes.find((s) => s.id === selectedShapeIds[0]);
+          if (targetShape) {
+            initialShapeRef.current = JSON.parse(JSON.stringify(targetShape));
           }
         }
+        initPointRef.current = { ...point };
         lastPointRef.current = { ...point };
         return;
       }
@@ -182,29 +175,45 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         // Select tool active
         const shapeElement = targetElement?.closest('[data-shape-id]');
         const clickedShapeId = shapeElement?.getAttribute('data-shape-id');
+        const isShift = (targetElement?.ownerDocument?.defaultView?.event as MouseEvent)?.shiftKey || false;
 
         if (clickedShapeId) {
           saveHistory(shapes);
-          setSelectedShapeId(clickedShapeId);
-          const targetShape = shapes.find((s) => s.id === clickedShapeId);
-          initialShapeRef.current = targetShape ? JSON.parse(JSON.stringify(targetShape)) : null;
+          snapshotInitialShapes(shapes);
 
-          // Immediately enable shape dragging when clicking shape body
+          let nextSelectedIds: string[];
+          if (isShift) {
+            nextSelectedIds = selectedShapeIds.includes(clickedShapeId)
+              ? selectedShapeIds.filter((id) => id !== clickedShapeId)
+              : [...selectedShapeIds, clickedShapeId];
+          } else {
+            nextSelectedIds = selectedShapeIds.includes(clickedShapeId) && selectedShapeIds.length > 1
+              ? selectedShapeIds
+              : [clickedShapeId];
+          }
+          setSelectedShapeIds(nextSelectedIds);
+
           isEditingRef.current = true;
-          editingShapeIdRef.current = clickedShapeId;
           editStateRef.current = EditState.CENTER;
           initPointRef.current = { ...point };
           lastPointRef.current = { ...point };
         } else {
-          setSelectedShapeId(null);
+          // Clicked empty canvas
+          if (!isShift) {
+            setSelectedShapeIds([]);
+          }
+          // Start marquee selection drag
+          isMarqueeRef.current = true;
+          initPointRef.current = { ...point };
+          setMarqueeRect({ x: point.x, y: point.y, width: 0, height: 0 });
         }
       } else {
         // Create new shape tool active
         saveHistory(shapes);
         const newShape = createNewShape(activeTool, point);
         setShapes((prev) => [...prev, newShape]);
-        setSelectedShapeId(newShape.id);
-        editingShapeIdRef.current = newShape.id;
+        setSelectedShapeIds([newShape.id]);
+        snapshotInitialShapes([newShape]);
         initialShapeRef.current = { ...newShape };
         editStateRef.current = EditState.DEFAULT;
         isEditingRef.current = true;
@@ -217,33 +226,69 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
       }
     },
-    [activeTool, selectedShapeId, shapes, saveHistory]
+    [activeTool, selectedShapeIds, shapes, saveHistory, snapshotInitialShapes]
   );
 
-  const handleMouseMove = useCallback((point: Point) => {
-    if (!isEditingRef.current || !editingShapeIdRef.current) return;
+  const handleMouseMove = useCallback(
+    (point: Point) => {
+      if (isMarqueeRef.current) {
+        const mX = Math.min(initPointRef.current.x, point.x);
+        const mY = Math.min(initPointRef.current.y, point.y);
+        const mW = Math.abs(point.x - initPointRef.current.x);
+        const mH = Math.abs(point.y - initPointRef.current.y);
+        const currentMarquee = { x: mX, y: mY, width: mW, height: mH };
+        setMarqueeRect(currentMarquee);
 
-    setShapes((prevShapes) =>
-      prevShapes.map((shape) => {
-        if (shape.id !== editingShapeIdRef.current) return shape;
-        return updateShapePoint(
-          shape,
-          point,
-          initPointRef.current,
-          editStateRef.current,
-          initialShapeRef.current
+        if (mW > 3 || mH > 3) {
+          const intersectingIds = shapes
+            .filter((s) => isShapeIntersectingRect(s, currentMarquee))
+            .map((s) => s.id);
+          setSelectedShapeIds(intersectingIds);
+        }
+        return;
+      }
+
+      if (!isEditingRef.current) return;
+
+      if (selectedShapeIds.length > 1) {
+        // Multi-selection group transformation
+        setShapes((prevShapes) =>
+          updateGroupShapes(
+            prevShapes,
+            selectedShapeIds,
+            point,
+            initPointRef.current,
+            editStateRef.current,
+            initialShapesMapRef.current
+          )
         );
-      })
-    );
-    lastPointRef.current = { ...point };
-  }, []);
+      } else if (selectedShapeIds.length === 1) {
+        // Single shape transformation
+        const targetId = selectedShapeIds[0];
+        setShapes((prevShapes) =>
+          prevShapes.map((shape) => {
+            if (shape.id !== targetId) return shape;
+            return updateShapePoint(
+              shape,
+              point,
+              initPointRef.current,
+              editStateRef.current,
+              initialShapesMapRef.current.get(targetId) || initialShapeRef.current
+            );
+          })
+        );
+      }
+      lastPointRef.current = { ...point };
+    },
+    [selectedShapeIds, shapes]
+  );
 
   const handleMouseUp = useCallback((point: Point, duration: number) => {
-    if (isEditingRef.current && editingShapeIdRef.current) {
-      // Post-creation adjust for short click on text
+    if (isEditingRef.current && selectedShapeIds.length === 1) {
+      const targetId = selectedShapeIds[0];
       setShapes((prevShapes) =>
         prevShapes.map((shape) => {
-          if (shape.id === editingShapeIdRef.current && shape.type === TypeShape.TEXT) {
+          if (shape.id === targetId && shape.type === TypeShape.TEXT) {
             if (duration < 500 && (shape.width === 0 || shape.height === 0)) {
               return { ...shape, width: 100, height: 50 };
             }
@@ -253,8 +298,9 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       );
     }
     isEditingRef.current = false;
-    editingShapeIdRef.current = null;
-  }, []);
+    isMarqueeRef.current = false;
+    setMarqueeRect(null);
+  }, [selectedShapeIds]);
 
   // Ref tracking latest viewBox for animation math
   const viewBoxRef = useRef(viewBox);
@@ -411,7 +457,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setRedoStack((prev) => [shapes, ...prev]);
     setShapes(previousShapes);
     setHistory((prev) => prev.slice(0, prev.length - 1));
-    setSelectedShapeId(null);
+    setSelectedShapeIds([]);
   }, [history, shapes]);
 
   const redo = useCallback(() => {
@@ -420,7 +466,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setHistory((prev) => [...prev, shapes]);
     setShapes(nextShapes);
     setRedoStack((prev) => prev.slice(1));
-    setSelectedShapeId(null);
+    setSelectedShapeIds([]);
   }, [redoStack, shapes]);
 
   // Global keyboard shortcuts for Undo, Redo, Tools, Deletion, and Navigation
@@ -483,9 +529,9 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             break;
           case 'Delete':
           case 'Backspace':
-            if (selectedShapeId) {
+            if (selectedShapeIds.length > 0) {
               e.preventDefault();
-              deleteShape(selectedShapeId);
+              deleteShape(selectedShapeIds[0]);
             }
             break;
           case 'ArrowUp':
@@ -510,19 +556,22 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedShapeId, deleteShape, handleToolChange, scroll]);
+  }, [undo, redo, selectedShapeIds, deleteShape, handleToolChange, scroll]);
 
   return (
     <WhiteboardContext.Provider
       value={{
         shapes,
         selectedShapeId,
+        selectedShapeIds,
         activeTool,
         viewBox,
+        marqueeRect,
         canUndo: history.length > 0,
         canRedo: redoStack.length > 0,
         setActiveTool: handleToolChange,
         selectShape,
+        selectShapes,
         updateShapeProperties,
         deleteShape,
         startDrawingOrEditing,

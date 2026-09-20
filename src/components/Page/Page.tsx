@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { TypeShape, Point, TextShape, EditState } from '../../types/shape';
-import { generateControlHandles, getShapeCenter } from '../../services/shapeUtils';
+import { generateControlHandles, getShapeCenter, getGroupBoundingBox, generateGroupControlHandles } from '../../services/shapeUtils';
 import styles from './Page.module.scss';
 
 interface TextItemProps {
@@ -147,8 +147,10 @@ export const Page: React.FC = () => {
   const {
     shapes,
     selectedShapeId,
+    selectedShapeIds,
     activeTool,
     viewBox,
+    marqueeRect,
     updateScreenSize,
     startDrawingOrEditing,
     handleMouseMove,
@@ -270,9 +272,18 @@ export const Page: React.FC = () => {
 
   const viewBoxString = `${viewBox.x} ${viewBox.y} ${viewBox.screenWidth * viewBox.zoom} ${viewBox.screenHeight * viewBox.zoom}`;
 
-  const selectedShape = shapes.find((s) => s.id === selectedShapeId);
-  const controlHandles = selectedShape ? generateControlHandles(selectedShape) : [];
-  const selectedCenter = selectedShape ? getShapeCenter(selectedShape) : null;
+  const isMultiSelection = selectedShapeIds.length > 1;
+  const singleSelectedShape = selectedShapeIds.length === 1 ? shapes.find((s) => s.id === selectedShapeIds[0]) : null;
+  const singleSelectedCenter = singleSelectedShape ? getShapeCenter(singleSelectedShape) : null;
+
+  let activeHandles: ReturnType<typeof generateControlHandles> = [];
+  if (isMultiSelection) {
+    const selectedShapes = shapes.filter((s) => selectedShapeIds.includes(s.id));
+    const groupBbox = getGroupBoundingBox(selectedShapes);
+    activeHandles = generateGroupControlHandles(groupBbox);
+  } else if (singleSelectedShape) {
+    activeHandles = generateControlHandles(singleSelectedShape);
+  }
 
   return (
     <svg
@@ -424,16 +435,32 @@ export const Page: React.FC = () => {
         })}
       </g>
 
+      {/* Marquee Selection Rectangle Box */}
+      {marqueeRect && (
+        <rect
+          x={marqueeRect.x}
+          y={marqueeRect.y}
+          width={marqueeRect.width}
+          height={marqueeRect.height}
+          fill="rgba(33, 150, 243, 0.12)"
+          stroke="#2196f3"
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
+      {/* Selection Control Handles */}
       <g id="controls">
-        {selectedShape && selectedCenter && (
+        {activeHandles.length > 0 && (
           <g
             transform={
-              selectedShape.rotation
-                ? `rotate(${selectedShape.rotation}, ${selectedCenter.x}, ${selectedCenter.y})`
+              !isMultiSelection && singleSelectedShape && singleSelectedShape.rotation && singleSelectedCenter
+                ? `rotate(${singleSelectedShape.rotation}, ${singleSelectedCenter.x}, ${singleSelectedCenter.y})`
                 : undefined
             }
           >
-            {controlHandles.map((handle) => {
+            {activeHandles.map((handle) => {
               if (handle.editState === EditState.ROTATE) {
                 return (
                   <g key={handle.id}>
@@ -490,7 +517,7 @@ export const Page: React.FC = () => {
                     width={handle.width}
                     height={handle.height}
                     stroke="#2196f3"
-                    strokeWidth="1.5"
+                    strokeWidth={isMultiSelection ? '2' : '1.5'}
                     strokeDasharray="4 4"
                     fill="none"
                     style={{ cursor: handle.cursor }}

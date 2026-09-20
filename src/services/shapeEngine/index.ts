@@ -1,6 +1,7 @@
 export * from './types';
 export * from './ShapeEngineFactory';
 export * from './utils/mathUtils';
+export * from './utils/groupUtils';
 export * from './strategies/RectStrategy';
 export * from './strategies/EllipseStrategy';
 export * from './strategies/LineStrategy';
