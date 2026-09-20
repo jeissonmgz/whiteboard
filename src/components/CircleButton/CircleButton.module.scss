@@ -1,55 +1,21 @@
-.circleLink {
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background-color: #ffffff;
-  color: #333333;
-  display: flex;
+.buttonWrapper {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-  outline: none;
   margin: 0 4px;
-
-  span {
-    font-size: 20px;
-    color: #2196f3;
-  }
 }
 
-.moveHover:hover {
-  transform: translateY(-0.25rem);
-  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
-}
-
-.selected {
-  background-color: #ff4081 !important;
-  span {
-    color: #ffffff !important;
-  }
-}
-
-.float {
-  cursor: pointer;
+.floatWrapper {
   position: absolute;
-  opacity: 0.3;
-  transform: translateX(-50%);
-  background-color: #2196f3;
-  span {
-    color: #ffffff;
-  }
-
-  &:hover {
-    opacity: 1;
-  }
+  margin: 0;
+  z-index: 1000;
 }
 
 .top {
   left: 50%;
   top: 10px;
+  transform: translateX(-50%);
 }
 
 .right {
@@ -67,4 +33,173 @@
 .bottom {
   left: 50%;
   bottom: 10px;
+  transform: translateX(-50%);
+}
+
+.circleLink {
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ffffff;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  outline: none;
+  margin: 0;
+
+  span {
+    font-size: 20px;
+    color: #2196f3;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+
+    span {
+      color: #9e9e9e !important;
+    }
+  }
+}
+
+.moveHover:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+}
+
+.selected {
+  background-color: #ff4081 !important;
+  span {
+    color: #ffffff !important;
+  }
+}
+
+.float {
+  cursor: pointer;
+  opacity: 0.3;
+  background-color: #2196f3;
+  margin: 0;
+
+  span {
+    color: #ffffff;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Floating Tooltip styling
+.tooltip {
+  position: absolute;
+  white-space: nowrap;
+  background: rgba(33, 37, 41, 0.92);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.18s;
+  z-index: 10000;
+  letter-spacing: 0.2px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    border-width: 5px;
+    border-style: solid;
+  }
+}
+
+// Show tooltip on hover
+.buttonWrapper:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+// 1. Default (Above button)
+.tooltip_default,
+.tooltip_bottom {
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+
+  &::after {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-color: rgba(33, 37, 41, 0.92) transparent transparent transparent;
+  }
+}
+
+.buttonWrapper:hover .tooltip_default,
+.buttonWrapper:hover .tooltip_bottom {
+  transform: translateX(-50%) translateY(0);
+}
+
+// 2. Top float button (Below button)
+.tooltip_top {
+  top: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+
+  &::after {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-color: transparent transparent rgba(33, 37, 41, 0.92) transparent;
+  }
+}
+
+.buttonWrapper:hover .tooltip_top {
+  transform: translateX(-50%) translateY(0);
+}
+
+// 3. Left float button (Right of button)
+.tooltip_left {
+  left: calc(100% + 9px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+
+  &::after {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-color: transparent rgba(33, 37, 41, 0.92) transparent transparent;
+  }
+}
+
+.buttonWrapper:hover .tooltip_left {
+  transform: translateY(-50%) translateX(0);
+}
+
+// 4. Right float button (Left of button)
+.tooltip_right {
+  right: calc(100% + 9px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+
+  &::after {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-color: transparent transparent transparent rgba(33, 37, 41, 0.92);
+  }
+}
+
+.buttonWrapper:hover .tooltip_right {
+  transform: translateY(-50%) translateX(0);
 }

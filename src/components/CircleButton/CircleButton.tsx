@@ -8,6 +8,7 @@ interface CircleButtonProps {
   isFloat?: boolean;
   position?: 'top' | 'bottom' | 'left' | 'right' | string;
   isSelected?: boolean;
+  disabled?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   onDoubleClick?: (e: React.MouseEvent) => void;
   onMouseDown?: (e: React.MouseEvent) => void;
@@ -22,6 +23,7 @@ export const CircleButton: React.FC<CircleButtonProps> = ({
   isFloat = false,
   position = '',
   isSelected = false,
+  disabled = false,
   onClick,
   onDoubleClick,
   onMouseDown,
@@ -30,8 +32,8 @@ export const CircleButton: React.FC<CircleButtonProps> = ({
 }) => {
   let buttonClassName = styles.circleLink;
   if (isFloat) {
-    buttonClassName += ` ${styles.float} ${styles[position] || ''}`;
-  } else {
+    buttonClassName += ` ${styles.float}`;
+  } else if (!disabled) {
     buttonClassName += ` ${styles.moveHover}`;
   }
 
@@ -39,22 +41,39 @@ export const CircleButton: React.FC<CircleButtonProps> = ({
     buttonClassName += ` ${styles.selected}`;
   }
 
+  const wrapperClassName = isFloat
+    ? `${styles.buttonWrapper} ${styles.floatWrapper} ${styles[position] || ''}`
+    : styles.buttonWrapper;
+
+  const tooltipPositionClass = isFloat
+    ? styles[`tooltip_${position}`] || styles.tooltip_default
+    : styles.tooltip_default;
+
   return (
-    <button
-      className={buttonClassName}
-      title={info}
-      onClick={onClick}
-      onDoubleClick={onDoubleClick}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseLeave}
-    >
-      <span
-        className="material-icons"
-        style={{ transform: rotateIcon || undefined }}
+    <div className={wrapperClassName}>
+      <button
+        className={buttonClassName}
+        aria-label={info}
+        disabled={disabled}
+        onClick={disabled ? undefined : onClick}
+        onDoubleClick={onDoubleClick}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseLeave}
       >
-        {icon}
-      </span>
-    </button>
+        <span
+          className="material-icons"
+          style={{ transform: rotateIcon || undefined }}
+        >
+          {icon}
+        </span>
+      </button>
+
+      {info && (
+        <div className={`${styles.tooltip} ${tooltipPositionClass}`} role="tooltip">
+          {info}
+        </div>
+      )}
+    </div>
   );
 };

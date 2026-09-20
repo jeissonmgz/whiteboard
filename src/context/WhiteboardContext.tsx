@@ -90,19 +90,28 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setSelectedShapeId(null);
   }, []);
 
-  const updateShapeProperties = useCallback((id: string, updates: Partial<ShapeData>) => {
-    setShapes((prevShapes) =>
-      prevShapes.map((shape) => (shape.id === id ? ({ ...shape, ...updates } as ShapeData) : shape))
-    );
-  }, []);
+  const updateShapeProperties = useCallback(
+    (id: string, updates: Partial<ShapeData>) => {
+      setShapes((prevShapes) => {
+        saveHistory(prevShapes);
+        return prevShapes.map((shape) =>
+          shape.id === id ? ({ ...shape, ...updates } as ShapeData) : shape
+        );
+      });
+    },
+    [saveHistory]
+  );
 
-  const deleteShape = useCallback((id: string) => {
-    setShapes((prevShapes) => {
-      saveHistory(prevShapes);
-      return prevShapes.filter((shape) => shape.id !== id);
-    });
-    setSelectedShapeId(null);
-  }, [saveHistory]);
+  const deleteShape = useCallback(
+    (id: string) => {
+      setShapes((prevShapes) => {
+        saveHistory(prevShapes);
+        return prevShapes.filter((shape) => shape.id !== id);
+      });
+      setSelectedShapeId(null);
+    },
+    [saveHistory]
+  );
 
   const startDrawingOrEditing = useCallback(
     (point: Point, targetElement?: Element) => {
@@ -115,6 +124,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       if (secAttribute === 'true' && stateAttribute !== null && selectedShapeId) {
         // Editing existing selected shape via handle
+        saveHistory(shapes);
         const editState = Number(stateAttribute) as EditState;
         editStateRef.current = editState;
         isEditingRef.current = true;
@@ -174,6 +184,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const clickedShapeId = shapeElement?.getAttribute('data-shape-id');
 
         if (clickedShapeId) {
+          saveHistory(shapes);
           setSelectedShapeId(clickedShapeId);
           const targetShape = shapes.find((s) => s.id === clickedShapeId);
           initialShapeRef.current = targetShape ? JSON.parse(JSON.stringify(targetShape)) : null;
@@ -411,6 +422,91 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setRedoStack((prev) => prev.slice(1));
     setSelectedShapeId(null);
   }, [redoStack, shapes]);
+
+  // Global keyboard shortcuts for Undo, Redo, Tools, Deletion, and Navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is currently typing inside a contentEditable or text input
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (
+        activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          activeEl.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z' || e.key === 'Z') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+        } else if (e.key === 'y' || e.key === 'Y') {
+          e.preventDefault();
+          redo();
+        }
+      } else {
+        // Single key shortcuts when Ctrl/Cmd is not pressed
+        switch (e.key) {
+          case 'v':
+          case 'V':
+          case 'Escape':
+            handleToolChange(null);
+            break;
+          case 't':
+          case 'T':
+            handleToolChange(TypeShape.TEXT);
+            break;
+          case 'l':
+          case 'L':
+            handleToolChange(TypeShape.LINE);
+            break;
+          case 'p':
+          case 'P':
+            handleToolChange(TypeShape.POLYLINE);
+            break;
+          case 'r':
+          case 'R':
+            handleToolChange(TypeShape.RECT);
+            break;
+          case 'e':
+          case 'E':
+            handleToolChange(TypeShape.ELLIPSE);
+            break;
+          case 'Delete':
+          case 'Backspace':
+            if (selectedShapeId) {
+              e.preventDefault();
+              deleteShape(selectedShapeId);
+            }
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            scroll(false, true, 15);
+            break;
+          case 'ArrowDown':
+            e.preventDefault();
+            scroll(false, false, 15);
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            scroll(true, true, 15);
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            scroll(true, false, 15);
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, selectedShapeId, deleteShape, handleToolChange, scroll]);
 
   return (
     <WhiteboardContext.Provider

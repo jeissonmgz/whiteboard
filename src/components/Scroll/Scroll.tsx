@@ -35,6 +35,7 @@ export const Scroll: React.FC = () => {
         isFloat={true}
         position="top"
         icon="keyboard_arrow_up"
+        info="Desplazar Arriba (↑)"
         onClick={() => handleScroll(VERTICAL, LEFT_OR_UP)}
         onDoubleClick={() => handleScroll(VERTICAL, LEFT_OR_UP, 80)}
         onMouseDown={() => handleMouseDown(VERTICAL, LEFT_OR_UP)}
@@ -45,6 +46,7 @@ export const Scroll: React.FC = () => {
         isFloat={true}
         position="bottom"
         icon="keyboard_arrow_down"
+        info="Desplazar Abajo (↓)"
         onClick={() => handleScroll(VERTICAL, RIGHT_OR_DOWN)}
         onDoubleClick={() => handleScroll(VERTICAL, RIGHT_OR_DOWN, 80)}
         onMouseDown={() => handleMouseDown(VERTICAL, RIGHT_OR_DOWN)}
@@ -55,6 +57,7 @@ export const Scroll: React.FC = () => {
         isFloat={true}
         position="left"
         icon="keyboard_arrow_left"
+        info="Desplazar Izquierda (←)"
         onClick={() => handleScroll(HORIZONTAL, LEFT_OR_UP)}
         onDoubleClick={() => handleScroll(HORIZONTAL, LEFT_OR_UP, 80)}
         onMouseDown={() => handleMouseDown(HORIZONTAL, LEFT_OR_UP)}
@@ -65,6 +68,7 @@ export const Scroll: React.FC = () => {
         isFloat={true}
         position="right"
         icon="keyboard_arrow_right"
+        info="Desplazar Derecha (→)"
         onClick={() => handleScroll(HORIZONTAL, RIGHT_OR_DOWN)}
         onDoubleClick={() => handleScroll(HORIZONTAL, RIGHT_OR_DOWN, 80)}
         onMouseDown={() => handleMouseDown(HORIZONTAL, RIGHT_OR_DOWN)}

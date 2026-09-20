@@ -17,72 +17,70 @@ export const Control: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {canUndo && (
-        <CircleButton
-          icon="undo"
-          info="Deshacer"
-          onClick={undo}
-        />
-      )}
-      {canRedo && (
-        <CircleButton
-          icon="redo"
-          info="Rehacer"
-          onClick={redo}
-        />
-      )}
+      <CircleButton
+        icon="undo"
+        info="Deshacer (⌘Z / Ctrl+Z)"
+        disabled={!canUndo}
+        onClick={undo}
+      />
+      <CircleButton
+        icon="redo"
+        info="Rehacer (⌘⇧Z / Ctrl+Y)"
+        disabled={!canRedo}
+        onClick={redo}
+      />
       <span className={styles.space}></span>
       <CircleButton
         icon="pan_tool"
-        info="Seleccionar"
+        info="Seleccionar (V / Esc)"
         isSelected={activeTool === null}
         onClick={() => setActiveTool(null)}
       />
       <CircleButton
         icon="title"
-        info="Texto"
+        info="Texto (T)"
         isSelected={activeTool === TypeShape.TEXT}
         onClick={() => setActiveTool(TypeShape.TEXT)}
       />
       <CircleButton
         icon="remove"
         rotateIcon="rotate(45deg)"
-        info="Línea"
+        info="Línea (L)"
         isSelected={activeTool === TypeShape.LINE}
         onClick={() => setActiveTool(TypeShape.LINE)}
       />
       <CircleButton
         icon="show_chart"
-        info="Polilínea"
+        info="Polilínea (P)"
         isSelected={activeTool === TypeShape.POLYLINE}
         onClick={() => setActiveTool(TypeShape.POLYLINE)}
       />
       <CircleButton
         icon="check_box_outline_blank"
-        info="Rectángulo"
+        info="Rectángulo (R)"
         isSelected={activeTool === TypeShape.RECT}
         onClick={() => setActiveTool(TypeShape.RECT)}
       />
       <CircleButton
         icon="radio_button_unchecked"
-        info="Elipse"
+        info="Elipse (E)"
         isSelected={activeTool === TypeShape.ELLIPSE}
         onClick={() => setActiveTool(TypeShape.ELLIPSE)}
       />
       <span className={styles.space}></span>
       <CircleButton
         icon="zoom_in"
-        info="Ampliar"
+        info="Ampliar (Ctrl + Scroll ↑)"
         onClick={() => changeZoom(true)}
       />
       <CircleButton
         icon="zoom_out"
-        info="Disminuir"
+        info="Disminuir (Ctrl + Scroll ↓)"
         onClick={() => changeZoom(false)}
       />
       <CircleButton
         icon="fullscreen_exit"
-        info="Reestablecer"
+        info="Reestablecer Zoom (100%)"
         onClick={() => changeZoom(100)}
       />
     </div>
