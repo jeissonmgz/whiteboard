@@ -26,3 +26,24 @@ svg div:focus {
   outline: none;
 }
 
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .content,
+  #controls,
+  [data-secondary="true"] {
+    display: none !important;
+  }
+
+  svg {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+}
+
