@@ -34,6 +34,8 @@ export const Property: React.FC = () => {
   // Position & Drag state
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const isDraggingRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const dragStartPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -73,6 +75,8 @@ export const Property: React.FC = () => {
     const rect = containerRef.current.getBoundingClientRect();
 
     isDraggingRef.current = true;
+    hasDraggedRef.current = false;
+    dragStartPosRef.current = { x: e.clientX, y: e.clientY };
     dragOffsetRef.current = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
@@ -87,6 +91,14 @@ export const Property: React.FC = () => {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDraggingRef.current || !containerRef.current) return;
+
+    const distMoved = Math.hypot(
+      e.clientX - dragStartPosRef.current.x,
+      e.clientY - dragStartPosRef.current.y
+    );
+    if (distMoved > 3) {
+      hasDraggedRef.current = true;
+    }
 
     const rect = containerRef.current.getBoundingClientRect();
     const cardWidth = rect.width;
@@ -158,7 +170,11 @@ export const Property: React.FC = () => {
         onPointerUp={handlePointerUp}
         onClick={(e) => {
           e.stopPropagation();
-          setCollapsed(!collapsed);
+          if (hasDraggedRef.current) {
+            hasDraggedRef.current = false;
+            return;
+          }
+          setCollapsed((prev) => !prev);
         }}
       >
         <div className={styles.headerTitle}>
