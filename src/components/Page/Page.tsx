@@ -528,9 +528,9 @@ export const Page: React.FC = () => {
                     width={handle.width}
                     height={handle.height}
                     stroke="#2196f3"
-                    strokeWidth={isMultiSelection ? '2' : '1.5'}
-                    strokeDasharray="4 4"
-                    fill="none"
+                    strokeWidth={isMultiSelection ? '3.5' : '2.5'}
+                    strokeDasharray="6 4"
+                    fill="rgba(33, 150, 243, 0.04)"
                     style={{ cursor: handle.cursor }}
                   />
                 );
@@ -542,10 +542,10 @@ export const Page: React.FC = () => {
                   data-state={handle.editState}
                   cx={handle.x}
                   cy={handle.y}
-                  r="7"
+                  r="8.5"
                   fill="#2196f3"
                   stroke="#ffffff"
-                  strokeWidth="1.5"
+                  strokeWidth="2"
                   style={{ cursor: handle.cursor }}
                 />
               );
