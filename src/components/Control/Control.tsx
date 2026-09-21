@@ -15,6 +15,7 @@ export const Control: React.FC = () => {
     redo,
     selectedShapeIds,
     duplicateSelectedShapes,
+    deleteShape,
     changeZoom,
   } = useWhiteboard();
 
@@ -39,6 +40,12 @@ export const Control: React.FC = () => {
         info={t('duplicate')}
         disabled={selectedShapeIds.length === 0}
         onClick={duplicateSelectedShapes}
+      />
+      <CircleButton
+        icon="delete"
+        info={t('delete')}
+        disabled={selectedShapeIds.length === 0}
+        onClick={() => deleteShape()}
       />
       <span className={styles.space}></span>
       <CircleButton

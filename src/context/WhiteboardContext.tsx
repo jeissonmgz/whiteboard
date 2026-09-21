@@ -20,7 +20,7 @@ interface WhiteboardContextType {
   selectShape: (id: string | null) => void;
   selectShapes: (ids: string[]) => void;
   updateShapeProperties: (id: string, updates: Partial<ShapeData>, skipHistory?: boolean) => void;
-  deleteShape: (id: string) => void;
+  deleteShape: (id?: string) => void;
   duplicateSelectedShapes: () => void;
   bringToFront: () => void;
   bringForward: () => void;
@@ -124,10 +124,13 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 
   const deleteShape = useCallback(
-    (id: string) => {
+    (id?: string) => {
       setShapes((prevShapes) => {
         saveHistory(prevShapes);
-        const targetIds = selectedShapeIds.includes(id) ? selectedShapeIds : [id];
+        const targetIds = id
+          ? (selectedShapeIds.includes(id) ? selectedShapeIds : [id])
+          : selectedShapeIds;
+        if (targetIds.length === 0) return prevShapes;
         return prevShapes.filter((shape) => !targetIds.includes(shape.id));
       });
       setSelectedShapeIds([]);
@@ -612,7 +615,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           case 'Backspace':
             if (selectedShapeIds.length > 0) {
               e.preventDefault();
-              deleteShape(selectedShapeIds[0]);
+              deleteShape();
             }
             break;
           case 'ArrowUp':

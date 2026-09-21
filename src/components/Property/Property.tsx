@@ -15,6 +15,7 @@ export const Property: React.FC = () => {
     bringForward,
     sendBackward,
     sendToBack,
+    deleteShape,
   } = useWhiteboard();
 
   const { t } = useI18n();
@@ -463,6 +464,16 @@ export const Property: React.FC = () => {
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            className={styles.deleteBtn}
+            onClick={() => deleteShape()}
+            title={t('delete')}
+          >
+            <span className="material-icons">delete_sweep</span>
+            <span>{t('deleteShape')}</span>
+          </button>
         </div>
       )}
     </div>
