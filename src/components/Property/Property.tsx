@@ -23,8 +23,13 @@ export const Property: React.FC = () => {
   // Accordion state - default stroke open
   const [openSection, setOpenSection] = useState<'stroke' | 'fill' | 'text' | 'layer' | null>('stroke');
 
-  // Minimize / Collapse state
-  const [collapsed, setCollapsed] = useState(false);
+  // Minimize / Collapse state - default collapsed on mobile/tablet (< 1024px)
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
 
   // Position & Drag state
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
@@ -151,6 +156,10 @@ export const Property: React.FC = () => {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onClick={(e) => {
+          e.stopPropagation();
+          setCollapsed(!collapsed);
+        }}
       >
         <div className={styles.headerTitle}>
           <span className="material-icons">tune</span>

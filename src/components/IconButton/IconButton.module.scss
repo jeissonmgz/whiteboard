@@ -3,7 +3,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 0 4px;
+  margin: 1px 0;
+
+  @media (min-width: 1024px) {
+    margin: 0 2px;
+  }
 }
 
 .floatWrapper {
@@ -25,23 +29,31 @@
 }
 
 .left {
-  left: 30px;
+  left: 62px;
   top: 50%;
   transform: translateY(-50%);
+
+  @media (min-width: 1024px) {
+    left: 30px;
+  }
 }
 
 .bottom {
   left: 50%;
   bottom: 10px;
   transform: translateX(-50%);
+
+  @media (min-width: 1024px) {
+    bottom: 72px;
+  }
 }
 
-.circleLink {
+.iconLink {
   cursor: pointer;
   transition: all 0.2s ease-out;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px; // Squircle / Rectangle with good border radius on mobile
   border: 1px solid var(--border-color);
   background-color: var(--btn-bg);
   color: var(--text-primary);
@@ -52,9 +64,19 @@
   outline: none;
   margin: 0;
 
+  @media (min-width: 1024px) {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; // Round / Circular on desktop (sm: 1024px+)
+  }
+
   span {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--color-primary);
+
+    @media (min-width: 1024px) {
+      font-size: 20px;
+    }
   }
 
   &:hover {
@@ -74,7 +96,7 @@
 }
 
 .moveHover:hover {
-  transform: translateY(-0.25rem);
+  transform: translateY(-0.15rem);
   box-shadow: var(--btn-shadow-hover);
 }
 
@@ -91,6 +113,7 @@
   opacity: 0.35;
   background-color: var(--color-primary);
   margin: 0;
+  border-radius: 50%;
 
   span {
     color: #ffffff;
@@ -136,7 +159,7 @@
   visibility: visible;
 }
 
-// 1. Default / Above (for standard buttons or float bottom button)
+// 1. Default / Above
 .tooltip_default,
 .tooltip_bottom {
   bottom: calc(100% + 9px);
@@ -156,7 +179,7 @@
   transform: translateX(-50%) translateY(0);
 }
 
-// 2. Top float button / Below (Below button, centered)
+// 2. Top float button / Below
 .tooltip_top,
 .tooltip_below {
   top: calc(100% + 9px);
@@ -176,7 +199,7 @@
   transform: translateX(-50%) translateY(0);
 }
 
-// 3. Bottom-Left (Below button, right-aligned to button wrapper, extending left)
+// 3. Bottom-Left
 .tooltip_bottom_left {
   top: calc(100% + 9px);
   right: 0;
@@ -196,7 +219,7 @@
   transform: translateY(0);
 }
 
-// 4. Bottom-Right (Below button, left-aligned to button wrapper, extending right)
+// 4. Bottom-Right
 .tooltip_bottom_right {
   top: calc(100% + 9px);
   left: 0;
@@ -216,7 +239,7 @@
   transform: translateY(0);
 }
 
-// 5. Left float button (Right of button)
+// 5. Left float button
 .tooltip_left {
   left: calc(100% + 9px);
   top: 50%;
@@ -234,7 +257,7 @@
   transform: translateY(-50%) translateX(0);
 }
 
-// 6. Right float button (Left of button)
+// 6. Right float button
 .tooltip_right {
   right: calc(100% + 9px);
   top: 50%;
@@ -251,5 +274,3 @@
 .buttonWrapper:hover .tooltip_right {
   transform: translateY(-50%) translateX(0);
 }
-
-

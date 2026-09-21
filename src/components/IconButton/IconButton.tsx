@@ -1,12 +1,12 @@
 import React from 'react';
-import styles from './CircleButton.module.scss';
+import styles from './IconButton.module.scss';
 
-interface CircleButtonProps {
+export interface IconButtonProps {
   icon: string;
   info?: string;
   rotateIcon?: string;
   isFloat?: boolean;
-  position?: 'top' | 'bottom' | 'left' | 'right' | string;
+  position?: 'top' | 'bottom' | 'left' | 'right' | 'bottom-left' | 'bottom-right' | string;
   isSelected?: boolean;
   disabled?: boolean;
   onClick?: (e: React.MouseEvent) => void;
@@ -16,7 +16,7 @@ interface CircleButtonProps {
   onMouseLeave?: (e: React.MouseEvent) => void;
 }
 
-export const CircleButton: React.FC<CircleButtonProps> = ({
+export const IconButton: React.FC<IconButtonProps> = ({
   icon,
   info,
   rotateIcon,
@@ -30,7 +30,7 @@ export const CircleButton: React.FC<CircleButtonProps> = ({
   onMouseUp,
   onMouseLeave,
 }) => {
-  let buttonClassName = styles.circleLink;
+  let buttonClassName = styles.iconLink;
   if (isFloat) {
     buttonClassName += ` ${styles.float}`;
   } else if (!disabled) {

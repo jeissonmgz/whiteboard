@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CircleButton } from '../CircleButton/CircleButton';
+import { IconButton } from '../IconButton/IconButton';
 import { useI18n } from '../../i18n/I18nContext';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import styles from './ThemeToggle.module.scss';
@@ -43,7 +43,7 @@ export const ThemeToggle: React.FC = () => {
 
   return (
     <div className={styles.themeToggleWrapper}>
-      <CircleButton
+      <IconButton
         icon={isDark ? 'light_mode' : 'dark_mode'}
         info={isDark ? t('themeLight') : t('themeDark')}
         position="bottom-left"

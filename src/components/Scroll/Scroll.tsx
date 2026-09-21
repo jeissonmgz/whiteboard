@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { useI18n } from '../../i18n/I18nContext';
-import { CircleButton } from '../CircleButton/CircleButton';
+import { IconButton } from '../IconButton/IconButton';
 
 export const Scroll: React.FC = () => {
   const { scroll } = useWhiteboard();
@@ -33,7 +33,7 @@ export const Scroll: React.FC = () => {
 
   return (
     <>
-      <CircleButton
+      <IconButton
         isFloat={true}
         position="top"
         icon="keyboard_arrow_up"
@@ -44,7 +44,7 @@ export const Scroll: React.FC = () => {
         onMouseUp={stopScroll}
         onMouseLeave={stopScroll}
       />
-      <CircleButton
+      <IconButton
         isFloat={true}
         position="bottom"
         icon="keyboard_arrow_down"
@@ -55,7 +55,7 @@ export const Scroll: React.FC = () => {
         onMouseUp={stopScroll}
         onMouseLeave={stopScroll}
       />
-      <CircleButton
+      <IconButton
         isFloat={true}
         position="left"
         icon="keyboard_arrow_left"
@@ -66,7 +66,7 @@ export const Scroll: React.FC = () => {
         onMouseUp={stopScroll}
         onMouseLeave={stopScroll}
       />
-      <CircleButton
+      <IconButton
         isFloat={true}
         position="right"
         icon="keyboard_arrow_right"

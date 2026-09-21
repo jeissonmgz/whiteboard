@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { useI18n } from '../../i18n/I18nContext';
-import { CircleButton } from '../CircleButton/CircleButton';
+import { IconButton } from '../IconButton/IconButton';
 import { useWhiteboardStore } from '../../store/useWhiteboardStore';
 import {
   exportCanvasImage,
@@ -58,7 +58,7 @@ export const ExportModal: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
-      <CircleButton
+      <IconButton
         icon="file_download"
         info={t('exportMenu')}
         position="bottom-left"

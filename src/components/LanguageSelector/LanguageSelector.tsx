@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { CircleButton } from '../CircleButton/CircleButton';
+import { IconButton } from '../IconButton/IconButton';
 import { useI18n } from '../../i18n/I18nContext';
 import styles from './LanguageSelector.module.scss';
 
@@ -23,7 +23,7 @@ export const LanguageSelector: React.FC = () => {
 
   return (
     <div ref={containerRef} className={styles.selectorWrapper}>
-      <CircleButton
+      <IconButton
         icon="language"
         info={`${t('languageSelect')}: ${currentLangObj.name}`}
         position="bottom-left"

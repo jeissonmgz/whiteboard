@@ -5,7 +5,12 @@ import styles from './Minimap.module.scss';
 
 export const Minimap: React.FC = () => {
   const { shapes, viewBox, centerAt } = useWhiteboard();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Compute total bounding box enclosing all shapes + current camera viewBox
@@ -81,7 +86,13 @@ export const Minimap: React.FC = () => {
 
   return (
     <div className={`${styles.minimapContainer} ${collapsed ? styles.collapsed : ''}`}>
-      <div className={styles.minimapHeader}>
+      <div
+        className={styles.minimapHeader}
+        onClick={(e) => {
+          e.stopPropagation();
+          setCollapsed(!collapsed);
+        }}
+      >
         <span className={styles.title}>Navegación</span>
         <button
           className={styles.toggleBtn}
