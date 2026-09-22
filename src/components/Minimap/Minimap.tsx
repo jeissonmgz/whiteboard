@@ -26,6 +26,7 @@ export const Minimap: React.FC = () => {
     switch (shape.type) {
       case TypeShape.RECT:
       case TypeShape.TEXT:
+      case TypeShape.NOTE:
         minX = Math.min(minX, shape.x);
         minY = Math.min(minY, shape.y);
         maxX = Math.max(maxX, shape.x + (shape.width || 0));
@@ -198,6 +199,21 @@ export const Minimap: React.FC = () => {
                         strokeWidth={totalWidth / 300}
                         opacity={0.5}
                         rx="4"
+                      />
+                    );
+                  case TypeShape.NOTE:
+                    return (
+                      <rect
+                        key={shape.id}
+                        x={shape.x}
+                        y={shape.y}
+                        width={shape.width || 160}
+                        height={shape.height || 160}
+                        stroke="#fbc02d"
+                        fill={shape.fill && shape.fill !== 'none' ? shape.fill : '#fff59d'}
+                        strokeWidth={totalWidth / 300}
+                        opacity={0.9}
+                        rx="2"
                       />
                     );
                   default:

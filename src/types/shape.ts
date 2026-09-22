@@ -11,6 +11,7 @@ export enum TypeShape {
   RECT = 'rect',
   TEXT = 'foreignObject',
   ARROW = 'arrow',
+  NOTE = 'note',
 }
 
 export enum EditState {
@@ -97,13 +98,23 @@ export interface TextShape extends BaseShape {
   content: string;
 }
 
+export interface NoteShape extends BaseShape {
+  type: TypeShape.NOTE;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  content: string;
+}
+
 export type ShapeData =
   | RectShape
   | EllipseShape
   | LineShape
   | ArrowShape
   | PolylineShape
-  | TextShape;
+  | TextShape
+  | NoteShape;
 
 export interface ControlHandle {
   id: string;
