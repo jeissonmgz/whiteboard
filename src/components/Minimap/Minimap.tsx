@@ -26,6 +26,7 @@ export const Minimap: React.FC = () => {
     switch (shape.type) {
       case TypeShape.RECT:
       case TypeShape.TEXT:
+      case TypeShape.NOTE:
         minX = Math.min(minX, shape.x);
         minY = Math.min(minY, shape.y);
         maxX = Math.max(maxX, shape.x + (shape.width || 0));
@@ -38,6 +39,7 @@ export const Minimap: React.FC = () => {
         maxY = Math.max(maxY, shape.cy + (shape.ry || 0));
         break;
       case TypeShape.LINE:
+      case TypeShape.ARROW:
         minX = Math.min(minX, shape.x1, shape.x2);
         minY = Math.min(minY, shape.y1, shape.y2);
         maxX = Math.max(maxX, shape.x1, shape.x2);
@@ -147,16 +149,32 @@ export const Minimap: React.FC = () => {
                       />
                     );
                   case TypeShape.LINE:
+                  case TypeShape.ARROW:
+                    const arrowHeadLength = Math.max(totalWidth / 100, 8);
+                    const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
+                    const arrowAngle = Math.PI / 6;
+                    const p1X = shape.x2 - arrowHeadLength * Math.cos(angle - arrowAngle);
+                    const p1Y = shape.y2 - arrowHeadLength * Math.sin(angle - arrowAngle);
+                    const p2X = shape.x2 - arrowHeadLength * Math.cos(angle + arrowAngle);
+                    const p2Y = shape.y2 - arrowHeadLength * Math.sin(angle + arrowAngle);
+
                     return (
-                      <line
-                        key={shape.id}
-                        x1={shape.x1}
-                        y1={shape.y1}
-                        x2={shape.x2}
-                        y2={shape.y2}
-                        stroke="#ff9800"
-                        strokeWidth={Math.max(totalWidth / 200, 2)}
-                      />
+                      <g key={shape.id}>
+                        <line
+                          x1={shape.x1}
+                          y1={shape.y1}
+                          x2={shape.x2}
+                          y2={shape.y2}
+                          stroke="#ff9800"
+                          strokeWidth={Math.max(totalWidth / 200, 2)}
+                        />
+                        {shape.type === TypeShape.ARROW && (
+                          <polygon
+                            points={`${shape.x2},${shape.y2} ${p1X},${p1Y} ${p2X},${p2Y}`}
+                            fill="#ff9800"
+                          />
+                        )}
+                      </g>
                     );
                   case TypeShape.POLYLINE:
                     return (
@@ -181,6 +199,21 @@ export const Minimap: React.FC = () => {
                         strokeWidth={totalWidth / 300}
                         opacity={0.5}
                         rx="4"
+                      />
+                    );
+                  case TypeShape.NOTE:
+                    return (
+                      <rect
+                        key={shape.id}
+                        x={shape.x}
+                        y={shape.y}
+                        width={shape.width || 160}
+                        height={shape.height || 160}
+                        stroke="#fbc02d"
+                        fill={shape.fill && shape.fill !== 'none' ? shape.fill : '#fff59d'}
+                        strokeWidth={totalWidth / 300}
+                        opacity={0.9}
+                        rx="2"
                       />
                     );
                   default:

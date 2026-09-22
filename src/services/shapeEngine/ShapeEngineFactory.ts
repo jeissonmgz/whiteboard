@@ -6,6 +6,7 @@ import { LineStrategy } from './strategies/LineStrategy';
 import { ArrowStrategy } from './strategies/ArrowStrategy';
 import { PolylineStrategy } from './strategies/PolylineStrategy';
 import { TextStrategy } from './strategies/TextStrategy';
+import { NoteStrategy } from './strategies/NoteStrategy';
 
 export class ShapeEngineFactory {
   private static strategies: Map<TypeShape, ShapeStrategy<any>> = new Map();
@@ -19,6 +20,7 @@ export class ShapeEngineFactory {
       this.registerStrategy(new ArrowStrategy());
       this.registerStrategy(new PolylineStrategy());
       this.registerStrategy(new TextStrategy());
+      this.registerStrategy(new NoteStrategy());
       this.initialized = true;
     }
   }

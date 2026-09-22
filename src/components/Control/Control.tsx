@@ -91,6 +91,12 @@ export const Control: React.FC = () => {
         isSelected={activeTool === TypeShape.ELLIPSE}
         onClick={() => setActiveTool(TypeShape.ELLIPSE)}
       />
+      <IconButton
+        icon="sticky_note_2"
+        info={t('note')}
+        isSelected={activeTool === TypeShape.NOTE}
+        onClick={() => setActiveTool(TypeShape.NOTE)}
+      />
       <span className={styles.space}></span>
       <IconButton
         icon="zoom_in"

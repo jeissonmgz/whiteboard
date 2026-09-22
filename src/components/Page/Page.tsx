@@ -1,8 +1,133 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
-import { TypeShape, Point, TextShape, EditState } from '../../types/shape';
+import { TypeShape, Point, TextShape, NoteShape, EditState } from '../../types/shape';
 import { generateControlHandles, getShapeCenter, getGroupBoundingBox, generateGroupControlHandles } from '../../services/shapeUtils';
 import styles from './Page.module.scss';
+
+interface NoteItemProps {
+  shape: NoteShape;
+  isSelected: boolean;
+  onUpdateContent: (id: string, newContent: string, saveHistory?: boolean) => void;
+  onSelect: (id: string) => void;
+}
+
+const NoteItem: React.FC<NoteItemProps> = ({
+  shape,
+  isSelected,
+  onUpdateContent,
+  onSelect,
+}) => {
+  const editableRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editableRef.current) {
+      if (
+        document.activeElement !== editableRef.current &&
+        editableRef.current.innerHTML !== (shape.content || '')
+      ) {
+        editableRef.current.innerHTML = shape.content || '';
+      }
+    }
+  }, [shape.content, shape.id]);
+
+  useEffect(() => {
+    if (isSelected && editableRef.current) {
+      const el = editableRef.current;
+      if (document.activeElement !== el) {
+        const timer = setTimeout(() => {
+          if (!el) return;
+          el.focus();
+        }, 50);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isSelected]);
+
+  const cornerFoldSize = Math.min(24, Math.min(shape.width, shape.height) * 0.18);
+  const w = shape.width;
+  const h = shape.height;
+  const fillBg = shape.fill && shape.fill !== 'none' ? shape.fill : '#fff59d';
+  const strokeColor = shape.stroke && shape.stroke !== 'none' ? shape.stroke : 'rgba(0, 0, 0, 0.12)';
+
+  const mainPath = `M 0 0 L ${w} 0 L ${w} ${h - cornerFoldSize} L ${w - cornerFoldSize} ${h} L 0 ${h} Z`;
+  const foldPath = `M ${w - cornerFoldSize} ${h - cornerFoldSize} L ${w} ${h - cornerFoldSize} L ${w - cornerFoldSize} ${h} Z`;
+
+  return (
+    <g
+      data-shape-id={shape.id}
+      transform={`translate(${shape.x}, ${shape.y})`}
+      style={{ pointerEvents: 'all' }}
+      onPointerDown={(e) => {
+        if ((e.target as HTMLElement).isContentEditable) return;
+        onSelect(shape.id);
+      }}
+    >
+      <path d={mainPath} fill="rgba(0,0,0,0.12)" transform="translate(3, 4)" />
+      <path
+        d={mainPath}
+        fill={fillBg}
+        stroke={strokeColor}
+        strokeWidth={shape.strokeWidth || 1}
+        fillOpacity={shape.fillOpacity ?? 1}
+        strokeOpacity={shape.strokeOpacity ?? 1}
+      />
+      <path d={foldPath} fill="rgba(0, 0, 0, 0.14)" />
+      <foreignObject
+        x={0}
+        y={0}
+        width={w}
+        height={h}
+        style={{ pointerEvents: 'auto' }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          onSelect(shape.id);
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div
+          ref={editableRef}
+          contentEditable
+          suppressContentEditableWarning
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent:
+              shape.verticalAlign === 'middle'
+                ? 'center'
+                : shape.verticalAlign === 'bottom'
+                ? 'flex-end'
+                : 'flex-start',
+            textAlign: (shape.textAlign as any) || 'left',
+            fontSize: `${shape.fontSize || 16}px`,
+            color: shape.color || '#333333',
+            fontFamily: "'Caveat', 'Comic Sans MS', cursive, Roboto, sans-serif",
+            opacity: shape.opacity ?? 1,
+            outline: 'none',
+            userSelect: 'text',
+            WebkitUserSelect: 'text',
+            boxSizing: 'border-box',
+            cursor: 'text',
+            pointerEvents: 'auto',
+            overflow: 'hidden',
+            wordBreak: 'break-word',
+            padding: '12px 14px',
+          }}
+          onInput={(e) => {
+            onUpdateContent(shape.id, e.currentTarget.innerHTML, false);
+          }}
+          onBlur={(e) => {
+            onUpdateContent(shape.id, e.currentTarget.innerHTML, true);
+          }}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+          }}
+        />
+      </foreignObject>
+    </g>
+  );
+};
 
 interface TextItemProps {
   shape: TextShape;
@@ -170,9 +295,16 @@ export const Page: React.FC = () => {
     selectShape,
     setPan,
     zoomAtPoint,
+    pinchPanZoom,
   } = useWhiteboard();
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+
+  // Keep ref to latest viewBox state for touch listeners
+  const viewBoxRef = useRef(viewBox);
+  useEffect(() => {
+    viewBoxRef.current = viewBox;
+  }, [viewBox]);
 
   // Middle-click scroll wheel pan gesture state
   const isPanningRef = useRef(false);
@@ -213,6 +345,91 @@ export const Page: React.FC = () => {
       svgEl.removeEventListener('wheel', handleWheel);
     };
   }, [zoomAtPoint]);
+
+  // Mobile multi-touch gestures (2-finger pinch zoom in/out & 2-finger pan scroll)
+  const touchStateRef = useRef<{
+    initialDist: number;
+    initialMid: { x: number; y: number };
+    initialViewBox: { x: number; y: number; zoom: number };
+  } | null>(null);
+
+  useEffect(() => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const midX = (t1.clientX + t2.clientX) / 2;
+        const midY = (t1.clientY + t2.clientY) / 2;
+
+        const rect = svgEl.getBoundingClientRect();
+
+        touchStateRef.current = {
+          initialDist: dist,
+          initialMid: { x: midX - rect.left, y: midY - rect.top },
+          initialViewBox: { ...viewBoxRef.current },
+        };
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && touchStateRef.current) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const newDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const newMidX = (t1.clientX + t2.clientX) / 2;
+        const newMidY = (t1.clientY + t2.clientY) / 2;
+
+        const rect = svgEl.getBoundingClientRect();
+        const currentMid = { x: newMidX - rect.left, y: newMidY - rect.top };
+
+        const { initialDist, initialMid, initialViewBox } = touchStateRef.current;
+
+        // 1. Pinch Zoom:
+        // Spreading fingers (newDist > initialDist) => scaleRatio < 1 => newZoom is smaller => Zoom In (+)
+        // Closing fingers (newDist < initialDist) => scaleRatio > 1 => newZoom is larger => Zoom Out (-)
+        const scaleRatio = initialDist / (newDist || 1);
+        let newZoom = initialViewBox.zoom * scaleRatio;
+        newZoom = Math.min(Math.max(newZoom, 0.1), 5.0);
+
+        // 2. Focal point shift (zoom stays centered under fingers)
+        const zoomedX = initialViewBox.x + initialMid.x * (initialViewBox.zoom - newZoom);
+        const zoomedY = initialViewBox.y + initialMid.y * (initialViewBox.zoom - newZoom);
+
+        // 3. Two-Finger Pan: Dragging 2 fingers scrolls infinite canvas towards target direction
+        const deltaScreenX = currentMid.x - initialMid.x;
+        const deltaScreenY = currentMid.y - initialMid.y;
+
+        const finalX = zoomedX - deltaScreenX * newZoom;
+        const finalY = zoomedY - deltaScreenY * newZoom;
+
+        pinchPanZoom(finalX, finalY, newZoom);
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        touchStateRef.current = null;
+      }
+    };
+
+    svgEl.addEventListener('touchstart', handleTouchStart, { passive: false });
+    svgEl.addEventListener('touchmove', handleTouchMove, { passive: false });
+    svgEl.addEventListener('touchend', handleTouchEnd, { passive: false });
+    svgEl.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+    return () => {
+      svgEl.removeEventListener('touchstart', handleTouchStart);
+      svgEl.removeEventListener('touchmove', handleTouchMove);
+      svgEl.removeEventListener('touchend', handleTouchEnd);
+      svgEl.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [pinchPanZoom]);
 
   const getCanvasPoint = (e: React.PointerEvent): Point => {
     if (!svgRef.current) return { x: 0, y: 0 };
@@ -431,6 +648,19 @@ export const Page: React.FC = () => {
               return (
                 <g key={shape.id} transform={transformStr}>
                   <TextItem
+                    shape={shape}
+                    isSelected={shape.id === selectedShapeId}
+                    onSelect={selectShape}
+                    onUpdateContent={(id, content, saveHistory) =>
+                      updateShapeProperties(id, { content }, !saveHistory)
+                    }
+                  />
+                </g>
+              );
+            case TypeShape.NOTE:
+              return (
+                <g key={shape.id} transform={transformStr}>
+                  <NoteItem
                     shape={shape}
                     isSelected={shape.id === selectedShapeId}
                     onSelect={selectShape}
