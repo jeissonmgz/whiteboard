@@ -45,6 +45,7 @@ interface WhiteboardContextType {
   updateScreenSize: (width: number, height: number) => void;
   centerAt: (targetX: number, targetY: number) => void;
   setPan: (x: number, y: number) => void;
+  pinchPanZoom: (x: number, y: number, zoom: number) => void;
 
   // History
   undo: () => void;
@@ -514,7 +515,20 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         y,
       }));
     },
-    [cancelViewBoxAnimation]
+    [cancelViewBoxAnimation, setViewBox]
+  );
+
+  const pinchPanZoom = useCallback(
+    (x: number, y: number, zoom: number) => {
+      cancelViewBoxAnimation();
+      setViewBox((prev) => ({
+        ...prev,
+        x,
+        y,
+        zoom,
+      }));
+    },
+    [cancelViewBoxAnimation, setViewBox]
   );
 
   // History operations
@@ -684,6 +698,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateScreenSize,
         centerAt,
         setPan,
+        pinchPanZoom,
         undo,
         redo,
       }}

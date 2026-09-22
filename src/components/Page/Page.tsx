@@ -170,9 +170,16 @@ export const Page: React.FC = () => {
     selectShape,
     setPan,
     zoomAtPoint,
+    pinchPanZoom,
   } = useWhiteboard();
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+
+  // Keep ref to latest viewBox state for touch listeners
+  const viewBoxRef = useRef(viewBox);
+  useEffect(() => {
+    viewBoxRef.current = viewBox;
+  }, [viewBox]);
 
   // Middle-click scroll wheel pan gesture state
   const isPanningRef = useRef(false);
@@ -213,6 +220,91 @@ export const Page: React.FC = () => {
       svgEl.removeEventListener('wheel', handleWheel);
     };
   }, [zoomAtPoint]);
+
+  // Mobile multi-touch gestures (2-finger pinch zoom in/out & 2-finger pan scroll)
+  const touchStateRef = useRef<{
+    initialDist: number;
+    initialMid: { x: number; y: number };
+    initialViewBox: { x: number; y: number; zoom: number };
+  } | null>(null);
+
+  useEffect(() => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const midX = (t1.clientX + t2.clientX) / 2;
+        const midY = (t1.clientY + t2.clientY) / 2;
+
+        const rect = svgEl.getBoundingClientRect();
+
+        touchStateRef.current = {
+          initialDist: dist,
+          initialMid: { x: midX - rect.left, y: midY - rect.top },
+          initialViewBox: { ...viewBoxRef.current },
+        };
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && touchStateRef.current) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const newDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        const newMidX = (t1.clientX + t2.clientX) / 2;
+        const newMidY = (t1.clientY + t2.clientY) / 2;
+
+        const rect = svgEl.getBoundingClientRect();
+        const currentMid = { x: newMidX - rect.left, y: newMidY - rect.top };
+
+        const { initialDist, initialMid, initialViewBox } = touchStateRef.current;
+
+        // 1. Pinch Zoom:
+        // Spreading fingers (newDist > initialDist) => scaleRatio < 1 => newZoom is smaller => Zoom In (+)
+        // Closing fingers (newDist < initialDist) => scaleRatio > 1 => newZoom is larger => Zoom Out (-)
+        const scaleRatio = initialDist / (newDist || 1);
+        let newZoom = initialViewBox.zoom * scaleRatio;
+        newZoom = Math.min(Math.max(newZoom, 0.1), 5.0);
+
+        // 2. Focal point shift (zoom stays centered under fingers)
+        const zoomedX = initialViewBox.x + initialMid.x * (initialViewBox.zoom - newZoom);
+        const zoomedY = initialViewBox.y + initialMid.y * (initialViewBox.zoom - newZoom);
+
+        // 3. Two-Finger Pan: Dragging 2 fingers scrolls infinite canvas towards target direction
+        const deltaScreenX = currentMid.x - initialMid.x;
+        const deltaScreenY = currentMid.y - initialMid.y;
+
+        const finalX = zoomedX - deltaScreenX * newZoom;
+        const finalY = zoomedY - deltaScreenY * newZoom;
+
+        pinchPanZoom(finalX, finalY, newZoom);
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        touchStateRef.current = null;
+      }
+    };
+
+    svgEl.addEventListener('touchstart', handleTouchStart, { passive: false });
+    svgEl.addEventListener('touchmove', handleTouchMove, { passive: false });
+    svgEl.addEventListener('touchend', handleTouchEnd, { passive: false });
+    svgEl.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+    return () => {
+      svgEl.removeEventListener('touchstart', handleTouchStart);
+      svgEl.removeEventListener('touchmove', handleTouchMove);
+      svgEl.removeEventListener('touchend', handleTouchEnd);
+      svgEl.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [pinchPanZoom]);
 
   const getCanvasPoint = (e: React.PointerEvent): Point => {
     if (!svgRef.current) return { x: 0, y: 0 };

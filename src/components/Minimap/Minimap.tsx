@@ -38,6 +38,7 @@ export const Minimap: React.FC = () => {
         maxY = Math.max(maxY, shape.cy + (shape.ry || 0));
         break;
       case TypeShape.LINE:
+      case TypeShape.ARROW:
         minX = Math.min(minX, shape.x1, shape.x2);
         minY = Math.min(minY, shape.y1, shape.y2);
         maxX = Math.max(maxX, shape.x1, shape.x2);
@@ -147,16 +148,32 @@ export const Minimap: React.FC = () => {
                       />
                     );
                   case TypeShape.LINE:
+                  case TypeShape.ARROW:
+                    const arrowHeadLength = Math.max(totalWidth / 100, 8);
+                    const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
+                    const arrowAngle = Math.PI / 6;
+                    const p1X = shape.x2 - arrowHeadLength * Math.cos(angle - arrowAngle);
+                    const p1Y = shape.y2 - arrowHeadLength * Math.sin(angle - arrowAngle);
+                    const p2X = shape.x2 - arrowHeadLength * Math.cos(angle + arrowAngle);
+                    const p2Y = shape.y2 - arrowHeadLength * Math.sin(angle + arrowAngle);
+
                     return (
-                      <line
-                        key={shape.id}
-                        x1={shape.x1}
-                        y1={shape.y1}
-                        x2={shape.x2}
-                        y2={shape.y2}
-                        stroke="#ff9800"
-                        strokeWidth={Math.max(totalWidth / 200, 2)}
-                      />
+                      <g key={shape.id}>
+                        <line
+                          x1={shape.x1}
+                          y1={shape.y1}
+                          x2={shape.x2}
+                          y2={shape.y2}
+                          stroke="#ff9800"
+                          strokeWidth={Math.max(totalWidth / 200, 2)}
+                        />
+                        {shape.type === TypeShape.ARROW && (
+                          <polygon
+                            points={`${shape.x2},${shape.y2} ${p1X},${p1Y} ${p2X},${p2Y}`}
+                            fill="#ff9800"
+                          />
+                        )}
+                      </g>
                     );
                   case TypeShape.POLYLINE:
                     return (
