@@ -80,6 +80,7 @@ export function duplicateShape(shape: ShapeData, offset = { x: 20, y: 20 }): Sha
   switch (shape.type) {
     case TypeShape.RECT:
     case TypeShape.TEXT:
+    case TypeShape.NOTE:
       return {
         ...shape,
         id: newId,
