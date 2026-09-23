@@ -26,6 +26,8 @@ interface WhiteboardContextType {
   bringForward: () => void;
   sendBackward: () => void;
   sendToBack: () => void;
+  copySelectedShapes: () => void;
+  pasteShapes: () => void;
 
 
   // Drawing & Editing lifecycle
@@ -150,6 +152,30 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       return [...prevShapes, ...newClones];
     });
   }, [selectedShapeIds, saveHistory]);
+
+  const clipboardRef = useRef<ShapeData[]>([]);
+
+  const copySelectedShapes = useCallback(() => {
+    if (selectedShapeIds.length === 0) return;
+    const currentShapes = useWhiteboardStore.getState().shapes;
+    const selected = currentShapes.filter((s) => selectedShapeIds.includes(s.id));
+    if (selected.length > 0) {
+      clipboardRef.current = JSON.parse(JSON.stringify(selected));
+    }
+  }, [selectedShapeIds]);
+
+  const pasteShapes = useCallback(() => {
+    if (clipboardRef.current.length === 0) return;
+    const pastedClones = clipboardRef.current.map((s) => duplicateShape(s, { x: 20, y: 20 }));
+    clipboardRef.current = pastedClones;
+    const newIds = pastedClones.map((c) => c.id);
+
+    setShapes((prevShapes) => {
+      saveHistory(prevShapes);
+      return [...prevShapes, ...pastedClones];
+    });
+    setSelectedShapeIds(newIds);
+  }, [saveHistory]);
 
   const bringToFront = useCallback(() => {
     if (selectedShapeIds.length === 0) return;
@@ -575,6 +601,12 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         } else if (e.key === 'y' || e.key === 'Y') {
           e.preventDefault();
           redo();
+        } else if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          copySelectedShapes();
+        } else if (e.key === 'v' || e.key === 'V') {
+          e.preventDefault();
+          pasteShapes();
         } else if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           duplicateSelectedShapes();
@@ -625,6 +657,10 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           case 'E':
             handleToolChange(TypeShape.ELLIPSE);
             break;
+          case 'n':
+          case 'N':
+            handleToolChange(TypeShape.NOTE);
+            break;
           case 'Delete':
           case 'Backspace':
             if (selectedShapeIds.length > 0) {
@@ -660,6 +696,8 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     selectedShapeIds,
     deleteShape,
     duplicateSelectedShapes,
+    copySelectedShapes,
+    pasteShapes,
     bringToFront,
     bringForward,
     sendBackward,
@@ -685,6 +723,8 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         updateShapeProperties,
         deleteShape,
         duplicateSelectedShapes,
+        copySelectedShapes,
+        pasteShapes,
         bringToFront,
         bringForward,
         sendBackward,
