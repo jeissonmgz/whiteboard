@@ -95,9 +95,8 @@ export function getBoundingBoxHandles(shapeId: string, bbox: BoundingBox): Contr
 }
 
 export function getRotationHandle(shape: ShapeData, center: Point, bbox: BoundingBox): ControlHandle {
-  const hasFill = Boolean(shape.fill && shape.fill !== 'none' && shape.fill !== 'transparent');
   const rotX = bbox.x + bbox.width / 2;
-  const rotY = hasFill ? bbox.y - 25 : center.y;
+  const rotY = bbox.y - 25;
 
   return {
     id: `${shape.id}-rotate`,
@@ -106,6 +105,6 @@ export function getRotationHandle(shape: ShapeData, center: Point, bbox: Boundin
     editState: EditState.ROTATE,
     cursor: 'grab',
     type: 'circle',
-    stemY: hasFill ? bbox.y : undefined,
+    stemY: bbox.y,
   };
 }
