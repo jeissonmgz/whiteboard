@@ -2,6 +2,8 @@ import { TextShape, TypeShape, PropertyAllowed, ControlHandle, EditState, Point 
 import { ShapeStrategy, BoundingBox } from '../types';
 import { rotatePoint, getBoundingBoxHandles, getRotationHandle } from '../utils/mathUtils';
 
+const TEXT_HANDLE_PADDING = 6;
+
 export class TextStrategy implements ShapeStrategy<TextShape> {
   public readonly type = TypeShape.TEXT;
 
@@ -28,7 +30,7 @@ export class TextStrategy implements ShapeStrategy<TextShape> {
   public generateControlHandles(shape: TextShape): ControlHandle[] {
     const bbox = this.getBoundingBox(shape);
     const center = this.getCenter(shape);
-    const handles = getBoundingBoxHandles(shape.id, bbox);
+    const handles = getBoundingBoxHandles(shape.id, bbox, TEXT_HANDLE_PADDING);
     handles.push(getRotationHandle(shape, center, bbox));
     return handles;
   }
@@ -117,7 +119,36 @@ export class TextStrategy implements ShapeStrategy<TextShape> {
     }
 
     const anchorWorld = rotatePoint(localAnchor, oldCenter, rotation);
-    const localMouse = rotatePoint(currentPoint, oldCenter, -rotation);
+    let localMouse = rotatePoint(currentPoint, oldCenter, -rotation);
+
+    // Adjust localMouse to compensate for handle padding offset
+    const p = TEXT_HANDLE_PADDING;
+    switch (editState) {
+      case EditState.NW_POINT:
+        localMouse = { x: localMouse.x + p, y: localMouse.y + p };
+        break;
+      case EditState.NE_POINT:
+        localMouse = { x: localMouse.x - p, y: localMouse.y + p };
+        break;
+      case EditState.SW_POINT:
+        localMouse = { x: localMouse.x + p, y: localMouse.y - p };
+        break;
+      case EditState.SE_POINT:
+        localMouse = { x: localMouse.x - p, y: localMouse.y - p };
+        break;
+      case EditState.W_POINT:
+        localMouse = { x: localMouse.x + p, y: localMouse.y };
+        break;
+      case EditState.E_POINT:
+        localMouse = { x: localMouse.x - p, y: localMouse.y };
+        break;
+      case EditState.N_POINT:
+        localMouse = { x: localMouse.x, y: localMouse.y + p };
+        break;
+      case EditState.S_POINT:
+        localMouse = { x: localMouse.x, y: localMouse.y - p };
+        break;
+    }
 
     let tempX = base.x;
     let tempW = base.width;
