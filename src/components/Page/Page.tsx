@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useWhiteboard } from '../../context/WhiteboardContext';
 import { TypeShape, Point, TextShape, NoteShape, EditState } from '../../types/shape';
 import { generateControlHandles, getShapeCenter, getGroupBoundingBox, generateGroupControlHandles } from '../../services/shapeUtils';
@@ -129,10 +129,47 @@ const NoteItem: React.FC<NoteItemProps> = ({
   );
 };
 
+function measureTextContent(
+  htmlContent: string,
+  fontSize: number,
+  fontFamily: string = 'Roboto, sans-serif'
+): { width: number; height: number } {
+  if (typeof document === 'undefined') return { width: 60, height: 28 };
+
+  const div = document.createElement('div');
+  div.style.position = 'fixed';
+  div.style.left = '-9999px';
+  div.style.top = '-9999px';
+  div.style.visibility = 'hidden';
+  div.style.width = 'max-content';
+  div.style.height = 'auto';
+  div.style.whiteSpace = 'pre';
+  div.style.fontSize = `${fontSize}px`;
+  div.style.fontFamily = fontFamily;
+  div.style.padding = '2px 4px';
+  div.style.boxSizing = 'border-box';
+  div.innerHTML = htmlContent || 'W';
+
+  document.body.appendChild(div);
+
+  const rect = div.getBoundingClientRect();
+  const measuredWidth = Math.max(60, Math.ceil(rect.width) + 16);
+
+  // Measure multi-line height under pre-wrap layout
+  div.style.whiteSpace = 'pre-wrap';
+  div.style.width = `${measuredWidth}px`;
+  const measuredHeight = Math.max(28, Math.ceil(div.getBoundingClientRect().height) + 6);
+
+  document.body.removeChild(div);
+
+  return { width: measuredWidth, height: measuredHeight };
+}
+
 interface TextItemProps {
   shape: TextShape;
   isSelected: boolean;
   onUpdateContent: (id: string, newContent: string, saveHistory?: boolean) => void;
+  onUpdateProperties: (id: string, updates: Partial<TextShape>, skipHistory?: boolean) => void;
   onSelect: (id: string) => void;
 }
 
@@ -140,9 +177,31 @@ const TextItem: React.FC<TextItemProps> = ({
   shape,
   isSelected,
   onUpdateContent,
+  onUpdateProperties,
   onSelect,
 }) => {
   const editableRef = useRef<HTMLDivElement>(null);
+
+  // Auto-fit text container width & height to content
+  const autoFitDimensions = useCallback(() => {
+    const content = editableRef.current?.innerHTML || shape.content || '';
+    const fontSize = Number(shape.fontSize) || 12;
+    const { width: fitW, height: fitH } = measureTextContent(content, fontSize);
+
+    if (
+      Math.abs(fitW - shape.width) > 2 ||
+      Math.abs(fitH - shape.height) > 2
+    ) {
+      onUpdateProperties(
+        shape.id,
+        {
+          width: fitW,
+          height: fitH,
+        },
+        true
+      );
+    }
+  }, [shape.id, shape.content, shape.fontSize, shape.width, shape.height, onUpdateProperties]);
 
   // Synchronize DOM innerHTML only when NOT focused (e.g. initial mount or Undo/Redo)
   useEffect(() => {
@@ -154,7 +213,8 @@ const TextItem: React.FC<TextItemProps> = ({
         editableRef.current.innerHTML = shape.content || '';
       }
     }
-  }, [shape.content, shape.id]);
+    autoFitDimensions();
+  }, [shape.content, shape.fontSize, shape.id, autoFitDimensions]);
 
   // Auto focus text element and place caret when created or selected
   useEffect(() => {
@@ -233,15 +293,18 @@ const TextItem: React.FC<TextItemProps> = ({
           cursor: 'text',
           pointerEvents: 'auto',
           overflow: 'hidden',
+          whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
           margin: 0,
-          padding: '2px',
+          padding: '2px 4px',
         }}
         onInput={(e) => {
           onUpdateContent(shape.id, e.currentTarget.innerHTML, false);
+          autoFitDimensions();
         }}
         onBlur={(e) => {
           onUpdateContent(shape.id, e.currentTarget.innerHTML, true);
+          autoFitDimensions();
         }}
         onKeyDown={(e) => {
           // Prevent canvas global shortcuts while typing
@@ -315,9 +378,13 @@ export const Page: React.FC = () => {
   // Resize listener
   useEffect(() => {
     const handleResize = () => {
-      updateScreenSize(window.innerWidth, window.innerHeight);
+      const rect = svgRef.current?.getBoundingClientRect();
+      const width = rect ? rect.width : window.innerWidth;
+      const height = rect ? rect.height : window.innerHeight;
+      updateScreenSize(width, height);
     };
 
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [updateScreenSize]);
@@ -432,11 +499,29 @@ export const Page: React.FC = () => {
   }, [pinchPanZoom]);
 
   const getCanvasPoint = (e: React.PointerEvent): Point => {
-    if (!svgRef.current) return { x: 0, y: 0 };
-    const rect = svgRef.current.getBoundingClientRect();
+    const svgEl = svgRef.current;
+    if (!svgEl) return { x: 0, y: 0 };
+
+    try {
+      const ctm = svgEl.getScreenCTM();
+      if (ctm) {
+        const inverseCTM = ctm.inverse();
+        const pt = svgEl.createSVGPoint();
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+        const svgPoint = pt.matrixTransform(inverseCTM);
+        return { x: svgPoint.x, y: svgPoint.y };
+      }
+    } catch (err) {
+      // Fallback if CTM matrix transform is unavailable
+    }
+
+    const rect = svgEl.getBoundingClientRect();
+    const scaleX = (viewBox.screenWidth * viewBox.zoom) / (rect.width || 1);
+    const scaleY = (viewBox.screenHeight * viewBox.zoom) / (rect.height || 1);
     return {
-      x: (e.clientX - rect.left) * viewBox.zoom + viewBox.x,
-      y: (e.clientY - rect.top) * viewBox.zoom + viewBox.y,
+      x: (e.clientX - rect.left) * scaleX + viewBox.x,
+      y: (e.clientY - rect.top) * scaleY + viewBox.y,
     };
   };
 
@@ -469,8 +554,12 @@ export const Page: React.FC = () => {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (isPanningRef.current) {
-      const dx = (e.clientX - panStartRef.current.x) * viewBox.zoom;
-      const dy = (e.clientY - panStartRef.current.y) * viewBox.zoom;
+      const rect = svgRef.current?.getBoundingClientRect();
+      const scaleX = rect ? (viewBox.screenWidth * viewBox.zoom) / (rect.width || 1) : viewBox.zoom;
+      const scaleY = rect ? (viewBox.screenHeight * viewBox.zoom) / (rect.height || 1) : viewBox.zoom;
+
+      const dx = (e.clientX - panStartRef.current.x) * scaleX;
+      const dy = (e.clientY - panStartRef.current.y) * scaleY;
       setPan(initViewBoxRef.current.x - dx, initViewBoxRef.current.y - dy);
       return;
     }
@@ -653,6 +742,9 @@ export const Page: React.FC = () => {
                     onSelect={selectShape}
                     onUpdateContent={(id, content, saveHistory) =>
                       updateShapeProperties(id, { content }, !saveHistory)
+                    }
+                    onUpdateProperties={(id, updates, skipHistory) =>
+                      updateShapeProperties(id, updates, skipHistory)
                     }
                   />
                 </g>
